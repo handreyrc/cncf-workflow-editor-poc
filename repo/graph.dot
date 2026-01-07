@@ -68,6 +68,10 @@ digraph G {
   "chrome-extension-serverless-workflow-editor" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools/serverless-workflow-combined-editor" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/tsconfig" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
+  "@kie-tools/cncf-workflow-editor" [ color = "blue", fontcolor = "blue", style = "rounded" ];
+  "@kie-tools-core/switch-expression-ts" [ color = "purple", fontcolor = "purple", style = "rounded" ];
+  "@kie-tools/i18n-common-dictionary" [ color = "blue", fontcolor = "blue", style = "rounded" ];
+  "@kie-tools/xml-parser-ts" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/cors-proxy" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/cors-proxy-api" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/jest-base" [ color = "blue", fontcolor = "blue", style = "rounded" ];
@@ -94,7 +98,6 @@ digraph G {
   "@kie-tools/dashbuilder-viewer" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/dashbuilder-viewer-deployment-webapp" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools-core/workspaces-git-fs" [ color = "purple", fontcolor = "purple", style = "rounded" ];
-  "@kie-tools/i18n-common-dictionary" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/dashbuilder-viewer-image" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools/dashbuilder-viewer-image-env" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools/dev-deployment-base-image" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
@@ -112,7 +115,6 @@ digraph G {
   "@kie-tools/dmn-feel-antlr4-parser" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/dmn-marshaller" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/dmn-language-service" [ color = "blue", fontcolor = "blue", style = "rounded" ];
-  "@kie-tools-core/switch-expression-ts" [ color = "purple", fontcolor = "purple", style = "rounded" ];
   "@kie-tools/dmn-marshaller-backend-compatibility-tester" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools/dmn-testing-models" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools-core/drools-and-kogito" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
@@ -204,7 +206,6 @@ digraph G {
   "@kie-tools/serverless-workflow-diagram-editor" [ color = "black", fontcolor = "black", style = "dashed, rounded" ];
   "@kie-tools/serverless-workflow-diagram-editor-envelope" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/serverless-workflow-editor" [ color = "blue", fontcolor = "blue", style = "rounded" ];
-  "@kie-tools/xml-parser-ts" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/serverless-workflow-jq-expressions" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/serverless-workflow-service-catalog" [ color = "blue", fontcolor = "blue", style = "rounded" ];
   "@kie-tools/serverless-workflow-language-service" [ color = "blue", fontcolor = "blue", style = "rounded" ];
@@ -296,6 +297,14 @@ digraph G {
   "chrome-extension-serverless-workflow-editor" -> "@kie-tools/chrome-extension-test-helper" [ style = "dashed", color = "black" ];
   "chrome-extension-serverless-workflow-editor" -> "@kie-tools/serverless-workflow-combined-editor" [ style = "dashed", color = "black" ];
   "@kie-tools/chrome-extension-test-helper" -> "@kie-tools/tsconfig" [ style = "dashed", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools-core/operating-system" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools-core/patternfly-base" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools-core/react-hooks" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools-core/switch-expression-ts" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools/i18n-common-dictionary" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools/xml-parser-ts" [ style = "solid", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools/playwright-base" [ style = "dashed", color = "blue" ];
+  "@kie-tools/cncf-workflow-editor" -> "@kie-tools/storybook-base" [ style = "dashed", color = "blue" ];
   "@kie-tools/cors-proxy" -> "@kie-tools-core/webpack-base" [ style = "dashed", color = "blue" ];
   "@kie-tools/cors-proxy" -> "@kie-tools/cors-proxy-api" [ style = "dashed", color = "blue" ];
   "@kie-tools/cors-proxy" -> "@kie-tools/jest-base" [ style = "dashed", color = "blue" ];

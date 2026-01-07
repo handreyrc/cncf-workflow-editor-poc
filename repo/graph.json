@@ -117,6 +117,9 @@
       { "id": "chrome-extension-serverless-workflow-editor" },
       { "id": "@kie-tools/serverless-workflow-diagram-editor-assets" },
       { "id": "@kie-tools/serverless-workflow-text-editor" },
+      { "id": "@kie-tools/cncf-workflow-editor" },
+      { "id": "@kie-tools-core/switch-expression-ts" },
+      { "id": "@kie-tools-core/i18n" },
       { "id": "@kie-tools/cors-proxy" },
       { "id": "@kie-tools/cors-proxy-api" },
       { "id": "@kie-tools/cors-proxy-image" },
@@ -143,7 +146,6 @@
       { "id": "@kie-tools-core/workspaces-git-fs" },
       { "id": "@kie-tools-core/workspace" },
       { "id": "@kie-tools/kie-sandbox-fs" },
-      { "id": "@kie-tools-core/i18n" },
       { "id": "@kie-tools/dashbuilder-viewer-image" },
       { "id": "@kie-tools/dashbuilder-viewer-image-env" },
       { "id": "@kie-tools/dev-deployment-base-image" },
@@ -160,7 +162,6 @@
       { "id": "@kie-tools/dmn-marshaller" },
       { "id": "@kie-tools/dmn-marshaller-backend-compatibility-tester" },
       { "id": "@kie-tools/dmn-testing-models" },
-      { "id": "@kie-tools-core/switch-expression-ts" },
       { "id": "@kie-tools/dmn-runner" },
       { "id": "@kie-tools/extended-services-api" },
       { "id": "dmn-vscode-extension" },
@@ -1133,6 +1134,76 @@
         "weight": 1
       },
       {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools-core/operating-system",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools-core/patternfly-base",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools-core/react-hooks",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools-core/switch-expression-ts",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools/i18n-common-dictionary",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools/xml-parser-ts",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools/playwright-base",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools/cncf-workflow-editor",
+        "target": "@kie-tools/storybook-base",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/switch-expression-ts",
+        "target": "@kie-tools/eslint",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/switch-expression-ts",
+        "target": "@kie-tools/jest-base",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/switch-expression-ts",
+        "target": "@kie-tools/tsconfig",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/i18n",
+        "target": "@kie-tools/eslint",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/i18n",
+        "target": "@kie-tools/jest-base",
+        "weight": 1
+      },
+      {
+        "source": "@kie-tools-core/i18n",
+        "target": "@kie-tools/tsconfig",
+        "weight": 1
+      },
+      {
         "source": "@kie-tools/cors-proxy",
         "target": "@kie-tools-core/webpack-base",
         "weight": 1
@@ -1488,21 +1559,6 @@
         "weight": 1
       },
       {
-        "source": "@kie-tools-core/i18n",
-        "target": "@kie-tools/eslint",
-        "weight": 1
-      },
-      {
-        "source": "@kie-tools-core/i18n",
-        "target": "@kie-tools/jest-base",
-        "weight": 1
-      },
-      {
-        "source": "@kie-tools-core/i18n",
-        "target": "@kie-tools/tsconfig",
-        "weight": 1
-      },
-      {
         "source": "@kie-tools/dashbuilder-viewer-image",
         "target": "@kie-tools/dashbuilder-viewer-deployment-webapp",
         "weight": 1
@@ -1670,21 +1726,6 @@
       {
         "source": "@kie-tools/dmn-testing-models",
         "target": "@kie-tools/maven-base",
-        "weight": 1
-      },
-      {
-        "source": "@kie-tools-core/switch-expression-ts",
-        "target": "@kie-tools/eslint",
-        "weight": 1
-      },
-      {
-        "source": "@kie-tools-core/switch-expression-ts",
-        "target": "@kie-tools/jest-base",
-        "weight": 1
-      },
-      {
-        "source": "@kie-tools-core/switch-expression-ts",
-        "target": "@kie-tools/tsconfig",
         "weight": 1
       },
       {
@@ -2882,6 +2923,7 @@
     ["chrome-extension-pack-kogito-kie-editors", "packages/chrome-extension-pack-kogito-kie-editors"],
     ["chrome-extension-serverless-workflow-editor", "packages/chrome-extension-serverless-workflow-editor"],
     ["@kie-tools/chrome-extension-test-helper", "packages/chrome-extension-test-helper"],
+    ["@kie-tools/cncf-workflow-editor", "packages/cncf-workflow-editor"],
     ["@kie-tools/cors-proxy", "packages/cors-proxy"],
     ["@kie-tools/cors-proxy-api", "packages/cors-proxy-api"],
     ["@kie-tools/cors-proxy-image", "packages/cors-proxy-image"],

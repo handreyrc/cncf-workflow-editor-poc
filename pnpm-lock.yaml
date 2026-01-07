@@ -1891,6 +1891,223 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3
 
+  packages/cncf-workflow-editor:
+    dependencies:
+      '@kie-tools-core/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@kie-tools-core/operating-system':
+        specifier: workspace:*
+        version: link:../operating-system
+      '@kie-tools-core/patternfly-base':
+        specifier: workspace:*
+        version: link:../patternfly-base
+      '@kie-tools-core/react-hooks':
+        specifier: workspace:*
+        version: link:../react-hooks
+      '@kie-tools-core/switch-expression-ts':
+        specifier: workspace:*
+        version: link:../switch-expression-ts
+      '@kie-tools/i18n-common-dictionary':
+        specifier: workspace:*
+        version: link:../i18n-common-dictionary
+      '@kie-tools/xml-parser-ts':
+        specifier: workspace:*
+        version: link:../xml-parser-ts
+      '@patternfly/react-core':
+        specifier: ^5.4.1
+        version: 5.4.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@patternfly/react-icons':
+        specifier: ^5.4.1
+        version: 5.4.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@patternfly/react-styles':
+        specifier: ^5.4.0
+        version: 5.4.1
+      '@serverlessworkflow/sdk-typescript':
+        specifier: ^0.8.4
+        version: 0.8.4
+      '@visx/text':
+        specifier: ^3.3.0
+        version: 3.3.0(react@17.0.2)
+      d3-drag:
+        specifier: ^3.0.0
+        version: 3.0.0
+      d3-selection:
+        specifier: ^3.0.0
+        version: 3.0.0
+      elkjs:
+        specifier: ^0.9.1
+        version: 0.9.1
+      fast-deep-equal:
+        specifier: ^3.1.3
+        version: 3.1.3
+      immer:
+        specifier: ^10.0.3
+        version: 10.0.3(patch_hash=utu5oov26wz5mjuays57tp3ybu)
+      moment:
+        specifier: ^2.29.4
+        version: 2.29.4
+      react:
+        specifier: '>=17.0.2 <19.0.0'
+        version: 17.0.2
+      react-dom:
+        specifier: '>=17.0.2 <19.0.0'
+        version: 17.0.2(react@17.0.2)
+      react-error-boundary:
+        specifier: ^4.1.2
+        version: 4.1.2(react@17.0.2)
+      reactflow:
+        specifier: ^11.8.3
+        version: 11.10.1(@types/react@17.0.21)(immer@10.0.3(patch_hash=utu5oov26wz5mjuays57tp3ybu))(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
+      zustand:
+        specifier: ^4.4.2
+        version: 4.4.2(patch_hash=7tws22nsyaxzkdpquvgytzpdve)(@types/react@17.0.21)(immer@10.0.3(patch_hash=utu5oov26wz5mjuays57tp3ybu))(react@17.0.2)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.16.0
+        version: 7.26.10
+      '@babel/preset-env':
+        specifier: ^7.16.0
+        version: 7.26.9(@babel/core@7.26.10)
+      '@babel/preset-react':
+        specifier: ^7.16.0
+        version: 7.22.15(@babel/core@7.26.10)
+      '@babel/preset-typescript':
+        specifier: ^7.22.5
+        version: 7.23.0(@babel/core@7.26.10)
+      '@kie-tools-core/webpack-base':
+        specifier: workspace:*
+        version: link:../webpack-base
+      '@kie-tools/eslint':
+        specifier: workspace:*
+        version: link:../eslint
+      '@kie-tools/jest-base':
+        specifier: workspace:*
+        version: link:../jest-base
+      '@kie-tools/playwright-base':
+        specifier: workspace:*
+        version: link:../playwright-base
+      '@kie-tools/root-env':
+        specifier: workspace:*
+        version: link:../root-env
+      '@kie-tools/storybook-base':
+        specifier: workspace:*
+        version: link:../storybook-base
+      '@kie-tools/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@playwright/test':
+        specifier: ^1.45.2
+        version: 1.45.2
+      '@storybook/addon-links':
+        specifier: ^7.3.2
+        version: 7.6.13(react@17.0.2)
+      '@storybook/addon-webpack5-compiler-babel':
+        specifier: ^3.0.5
+        version: 3.0.5(webpack@5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)(webpack-cli@4.10.0))
+      '@storybook/blocks':
+        specifier: ^7.3.2
+        version: 7.6.13(@types/react-dom@17.0.8)(@types/react@17.0.21)(encoding@0.1.13)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@storybook/manager-api':
+        specifier: ^7.3.2
+        version: 7.6.13(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@storybook/preview-api':
+        specifier: ^7.3.2
+        version: 7.6.13
+      '@storybook/react':
+        specifier: ^7.3.2
+        version: 7.6.13(encoding@0.1.13)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)(typescript@5.5.3)
+      '@storybook/react-webpack5':
+        specifier: ^7.3.2
+        version: 7.6.13(@babel/core@7.26.10)(@swc/core@1.3.92)(@types/webpack@4.41.39)(encoding@0.1.13)(esbuild@0.18.20)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)(type-fest@4.30.1)(typescript@5.5.3)(webpack-cli@4.10.0(webpack-dev-server@4.15.1)(webpack@5.94.0))(webpack-dev-server@4.15.1(webpack-cli@4.10.0)(webpack@5.94.0))(webpack-hot-middleware@2.25.4)
+      '@types/d3-drag':
+        specifier: ^3.0.3
+        version: 3.0.7
+      '@types/d3-selection':
+        specifier: ^3.0.6
+        version: 3.0.10
+      '@types/jest':
+        specifier: ^29.5.12
+        version: 29.5.12
+      '@types/jest-when':
+        specifier: ^3.5.5
+        version: 3.5.5
+      '@types/lodash':
+        specifier: ^4.14.168
+        version: 4.14.202
+      '@types/node':
+        specifier: ^22.14.1
+        version: 22.18.8
+      '@types/react':
+        specifier: ^17.0.6
+        version: 17.0.21
+      '@types/react-dom':
+        specifier: ^17.0.5
+        version: 17.0.8
+      '@types/uuid':
+        specifier: ^8.3.0
+        version: 8.3.0
+      copy-webpack-plugin:
+        specifier: ^11.0.0
+        version: 11.0.0(webpack@5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)(webpack-cli@4.10.0))
+      copyfiles:
+        specifier: ^2.4.1
+        version: 2.4.1
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      deep-object-diff:
+        specifier: ^1.1.9
+        version: 1.1.9
+      file-loader:
+        specifier: ^6.2.0
+        version: 6.2.0(webpack@5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)(webpack-cli@4.10.0))
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@22.18.8)(node-notifier@8.0.2)(ts-node@10.9.2(@swc/core@1.3.92)(@types/node@22.18.8)(typescript@5.5.3))
+      jest-junit:
+        specifier: ^16.0.0
+        version: 16.0.0
+      jest-when:
+        specifier: ^3.6.0
+        version: 3.6.0(jest@29.7.0(@types/node@22.18.8)(node-notifier@8.0.2)(ts-node@10.9.2(@swc/core@1.3.92)(@types/node@22.18.8)(typescript@5.5.3)))
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      rimraf:
+        specifier: ^3.0.2
+        version: 3.0.2
+      run-script-os:
+        specifier: ^1.1.6
+        version: 1.1.6
+      start-server-and-test:
+        specifier: ^2.0.3
+        version: 2.0.3
+      storybook:
+        specifier: ^7.3.2
+        version: 7.6.13(encoding@0.1.13)
+      ts-jest:
+        specifier: ^29.1.5
+        version: 29.1.5(@babel/core@7.26.10)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.10))(esbuild@0.18.20)(jest@29.7.0(@types/node@22.18.8)(node-notifier@8.0.2)(ts-node@10.9.2(@swc/core@1.3.92)(@types/node@22.18.8)(typescript@5.5.3)))(typescript@5.5.3)
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.3
+      webpack:
+        specifier: ^5.94.0
+        version: 5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)(webpack-cli@4.10.0)
+      webpack-cli:
+        specifier: ^4.10.0
+        version: 4.10.0(webpack-dev-server@4.15.1)(webpack@5.94.0)
+      webpack-dev-server:
+        specifier: ^4.15.1
+        version: 4.15.1(webpack-cli@4.10.0)(webpack@5.94.0)
+      webpack-merge:
+        specifier: ^5.9.0
+        version: 5.10.0
+
   packages/cors-proxy:
     dependencies:
       cors:
@@ -42251,7 +42468,7 @@ snapshots:
     dependencies:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
 
   '@severlessworkflow/sdk-typescript@3.0.3':
     dependencies:
@@ -58355,7 +58572,7 @@ snapshots:
 
   terser-webpack-plugin@5.3.10(@swc/core@1.3.92)(esbuild@0.18.20)(webpack@5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)(webpack-cli@4.10.0)):
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
@@ -58367,7 +58584,7 @@ snapshots:
 
   terser-webpack-plugin@5.3.10(@swc/core@1.3.92)(esbuild@0.18.20)(webpack@5.94.0(@swc/core@1.3.92)(esbuild@0.18.20)):
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
@@ -60330,7 +60547,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.3
+      browserslist: 4.27.0
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
@@ -60360,7 +60577,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.3
+      browserslist: 4.27.0
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
