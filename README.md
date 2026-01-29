@@ -19,8 +19,6 @@
 
 ---
 
-**[CNCF](https://www.cncf.io/)** as part of the Linux Foundation, we provide support, oversight and direction for fast-growing, cloud native projects, including Kubernetes, Envoy, and Prometheus.
-
 ## Contribute
 
 - _Work in progress 🔨_
