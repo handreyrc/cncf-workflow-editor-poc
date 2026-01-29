@@ -17,20 +17,23 @@
  * under the License.
  */
 
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export function renameElement({
   definitions,
   newName,
   index,
 }: {
-  definitions: Specification.States;
+  definitions: Specification.TaskList;
   newName: string;
   index: number;
 }) {
   const trimmedNewName = newName.trim();
-
   const swfElement = definitions![index];
 
-  swfElement["name"] = trimmedNewName;
+  const renamedTaskItem: Specification.TaskItem = {
+    [trimmedNewName]: swfElement[Object.keys(swfElement)[0]],
+  };
+
+  definitions[index] = renamedTaskItem;
 }

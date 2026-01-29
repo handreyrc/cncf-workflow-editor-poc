@@ -52,8 +52,8 @@ export interface Color {
 }
 
 export const DEFAULT_NODE_RED_FILL = 255;
-export const DEFAULT_NODE_GREEN_FILL = 255;
-export const DEFAULT_NODE_BLUE_FILL = 255;
+export const DEFAULT_NODE_GREEN_FILL = 250;
+export const DEFAULT_NODE_BLUE_FILL = 205;
 export const DEFAULT_NODE_OPACITY = 0.9;
 export const DEFAULT_NODE_FILL = `rgba(${DEFAULT_NODE_RED_FILL}, ${DEFAULT_NODE_GREEN_FILL}, ${DEFAULT_NODE_BLUE_FILL}, ${DEFAULT_NODE_OPACITY})`;
 export const DEFAULT_NODE_STROKE_WIDTH = 1.5;
@@ -116,21 +116,29 @@ type NodeLabelPositionProps = { nodeType: NodeType };
 // Set label position for the different types of nodes
 export function getNodeLabelPosition({ nodeType }: NodeLabelPositionProps): NodeLabelPosition {
   switch (nodeType) {
-    case NODE_TYPES.callbackState:
+    case NODE_TYPES.CallTask:
       return "center-center";
-    case NODE_TYPES.eventState:
+    case NODE_TYPES.DoTask:
       return "center-center";
-    case NODE_TYPES.foreachState:
+    case NODE_TYPES.EmitTask:
       return "center-center";
-    case NODE_TYPES.injectState:
+    case NODE_TYPES.ForTask:
       return "center-center";
-    case NODE_TYPES.operationState:
+    case NODE_TYPES.ForkTask:
       return "center-center";
-    case NODE_TYPES.parallelState:
+    case NODE_TYPES.ListenTask:
       return "center-center";
-    case NODE_TYPES.sleepState:
+    case NODE_TYPES.RaiseTask:
       return "center-center";
-    case NODE_TYPES.switchState:
+    case NODE_TYPES.RunTask:
+      return "center-center";
+    case NODE_TYPES.SetTask:
+      return "center-center";
+    case NODE_TYPES.SwitchTask:
+      return "center-center";
+    case NODE_TYPES.TryTask:
+      return "center-center";
+    case NODE_TYPES.WaitTask:
       return "center-center";
     case NODE_TYPES.unknown:
       return "center-center";

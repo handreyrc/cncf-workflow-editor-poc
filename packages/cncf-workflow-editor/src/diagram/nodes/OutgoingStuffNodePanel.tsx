@@ -21,23 +21,20 @@ import * as React from "react";
 import * as RF from "reactflow";
 import { EdgeType, NodeType } from "../connections/graphStructure";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/js/layouts/Flex";
+import { TransitionPath, ConditionPath, DefaultPath } from "../edges/SwfEdges";
 import {
-  TransitionPath,
-  ErrorTransitionPath,
-  EventConditionTransitionPath,
-  DefaultConditionTransitionPath,
-  DataConditionTransitionPath,
-  CompensationTransitionPath,
-} from "../edges/SwfEdges";
-import {
-  EventstateSvg,
-  OperationstateSvg,
-  SwitchstateSvg,
-  SleepstateSvg,
-  ParallelstateSvg,
-  InjectstateSvg,
-  ForeachstateSvg,
-  CallbackstateSvg,
+  CallTaskSvg,
+  DoTaskSvg,
+  ForkTaskSvg,
+  EmitTaskSvg,
+  ForTaskSvg,
+  ListenTaskSvg,
+  RaiseTaskSvg,
+  RunTaskSvg,
+  SetTaskSvg,
+  SwitchTaskSvg,
+  TryTaskSvg,
+  WaitTaskSvg,
 } from "./SwfNodeSvgs";
 import { NODE_TYPES } from "./SwfNodeTypes";
 import { EDGE_TYPES } from "../edges/SwfEdgeTypes";
@@ -75,23 +72,14 @@ export function OutgoingStuffNodePanel(props: {
 
   const getEdgeActionTitle = React.useCallback((edgeType: string): string => {
     switch (edgeType) {
-      case EDGE_TYPES.compensationTransition: {
-        return i18n.nodes.addCompensationTransitionEdge;
-      }
-      case EDGE_TYPES.dataConditionTransition: {
-        return i18n.nodes.addDataConditionTransitionEdge;
-      }
-      case EDGE_TYPES.defaultConditionTransition: {
-        return i18n.nodes.addDefaultConditionTransitionEdge;
-      }
-      case EDGE_TYPES.errorTransition: {
-        return i18n.nodes.addErrorTransitionEdge;
-      }
-      case EDGE_TYPES.eventConditionTransition: {
-        return i18n.nodes.addEventConditionTransitionEdge;
-      }
       case EDGE_TYPES.transition: {
-        return i18n.nodes.addErrorTransitionEdge;
+        return i18n.nodes.addTransitionEdge;
+      }
+      case EDGE_TYPES.condition: {
+        return i18n.nodes.addConditionEdge;
+      }
+      case EDGE_TYPES.default: {
+        return i18n.nodes.addDefaultEdge;
       }
       default: {
         throw new Error("Add Unknown edge type");
@@ -101,29 +89,41 @@ export function OutgoingStuffNodePanel(props: {
 
   const getNodeActionTitle = React.useCallback((nodeType: string): string => {
     switch (nodeType) {
-      case NODE_TYPES.callbackState: {
-        return i18n.nodes.addCallbackStateNode;
+      case NODE_TYPES.CallTask: {
+        return i18n.nodes.addCallTaskNode;
       }
-      case NODE_TYPES.eventState: {
-        return i18n.nodes.addEventStateNode;
+      case NODE_TYPES.DoTask: {
+        return i18n.nodes.addDoTaskNode;
       }
-      case NODE_TYPES.foreachState: {
-        return i18n.nodes.addForeachStateNode;
+      case NODE_TYPES.EmitTask: {
+        return i18n.nodes.addEmitTaskNode;
       }
-      case NODE_TYPES.injectState: {
-        return i18n.nodes.addInjectStateNode;
+      case NODE_TYPES.ForTask: {
+        return i18n.nodes.addForTaskNode;
       }
-      case NODE_TYPES.operationState: {
-        return i18n.nodes.addOperationStateNode;
+      case NODE_TYPES.ForkTask: {
+        return i18n.nodes.addForkTaskNode;
       }
-      case NODE_TYPES.parallelState: {
-        return i18n.nodes.addParallelStateNode;
+      case NODE_TYPES.ListenTask: {
+        return i18n.nodes.addListenTaskNode;
       }
-      case NODE_TYPES.sleepState: {
-        return i18n.nodes.addSleepStateNode;
+      case NODE_TYPES.RaiseTask: {
+        return i18n.nodes.addRaiseTaskNode;
       }
-      case NODE_TYPES.switchState: {
-        return i18n.nodes.addSwitchStateNode;
+      case NODE_TYPES.RunTask: {
+        return i18n.nodes.addRunTaskNode;
+      }
+      case NODE_TYPES.SetTask: {
+        return i18n.nodes.addSetTaskNode;
+      }
+      case NODE_TYPES.SwitchTask: {
+        return i18n.nodes.addSwitchTaskNode;
+      }
+      case NODE_TYPES.TryTask: {
+        return i18n.nodes.addTryTaskNode;
+      }
+      case NODE_TYPES.WaitTask: {
+        return i18n.nodes.addWaitTaskNode;
       }
       default: {
         throw new Error("Add Unknown node type");
@@ -152,23 +152,14 @@ export function OutgoingStuffNodePanel(props: {
                   viewBox={`0 0 ${edgeSvgViewboxSize} ${edgeSvgViewboxSize}`}
                   style={{ padding: `${svgViewboxPadding}px` }}
                 >
-                  {edgeType === EDGE_TYPES.compensationTransition && (
-                    <CompensationTransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
-                  )}
                   {edgeType === EDGE_TYPES.transition && (
                     <TransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
                   )}
-                  {edgeType === EDGE_TYPES.errorTransition && (
-                    <ErrorTransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
+                  {edgeType === EDGE_TYPES.condition && (
+                    <ConditionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
                   )}
-                  {edgeType === EDGE_TYPES.defaultConditionTransition && (
-                    <DefaultConditionTransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
-                  )}
-                  {edgeType === EDGE_TYPES.dataConditionTransition && (
-                    <DataConditionTransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
-                  )}
-                  {edgeType === EDGE_TYPES.eventConditionTransition && (
-                    <EventConditionTransitionPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
+                  {edgeType === EDGE_TYPES.default && (
+                    <DefaultPath d={`M2,${edgeSvgViewboxSize - 2} L${edgeSvgViewboxSize - 2},0`} />
                   )}
                 </svg>
               </RF.Handle>
@@ -194,14 +185,18 @@ export function OutgoingStuffNodePanel(props: {
                   viewBox={`0 0 ${nodeSvgViewboxSize} ${nodeSvgViewboxSize}`}
                   style={{ padding: `${svgViewboxPadding}px` }}
                 >
-                  {nodeType === NODE_TYPES.callbackState && <CallbackstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.eventState && <EventstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.foreachState && <ForeachstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.injectState && <InjectstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.operationState && <OperationstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.parallelState && <ParallelstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.sleepState && <SleepstateSvg {...nodeSvgProps} />}
-                  {nodeType === NODE_TYPES.switchState && <SwitchstateSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.CallTask && <CallTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.DoTask && <DoTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.EmitTask && <EmitTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.ForTask && <ForTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.ForkTask && <ForkTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.ListenTask && <ListenTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.RaiseTask && <RaiseTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.RunTask && <RunTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.SetTask && <SetTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.SwitchTask && <SwitchTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.TryTask && <TryTaskSvg {...nodeSvgProps} />}
+                  {nodeType === NODE_TYPES.WaitTask && <WaitTaskSvg {...nodeSvgProps} />}
                 </svg>
               </RF.Handle>
             ))}

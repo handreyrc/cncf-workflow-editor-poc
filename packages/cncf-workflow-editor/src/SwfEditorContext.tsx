@@ -20,11 +20,11 @@
 import * as React from "react";
 import { useContext, useMemo, useRef } from "react";
 import { SwfEditorProps } from "./SwfEditor";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export type SwfEditorContextProviderProps = Pick<SwfEditorProps, "issueTrackerHref" | "model">;
 
-export type SwfModelBeforeEditing = Specification.IWorkflow;
+export type SwfModelBeforeEditing = Specification.Workflow;
 
 export type SwfEditorContextType = Pick<SwfEditorContextProviderProps, "issueTrackerHref"> & {
   swfModelBeforeEditingRef: React.MutableRefObject<SwfModelBeforeEditing>;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 import { Page } from "@playwright/test";
 
 type AllSwfElements = NonNullable<Specification.States>[0];
@@ -121,6 +121,6 @@ export class SwfElement {
     if (textContent === null || textContent === undefined) {
       return;
     }
-    return (JSON.parse(textContent) as Specification.IWorkflow).states[args.swfElementIndex];
+    return (JSON.parse(textContent) as Specification.Workflow).states[args.swfElementIndex];
   }
 }

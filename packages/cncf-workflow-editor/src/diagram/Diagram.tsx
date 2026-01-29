@@ -37,42 +37,35 @@ import { TimesIcon } from "@patternfly/react-icons/dist/js/icons/times-icon";
 import { VirtualMachineIcon } from "@patternfly/react-icons/dist/js/icons/virtual-machine-icon";
 import { useSwfEditor } from "../SwfEditorContext";
 import { AutolayoutButton } from "../autolayout/AutolayoutButton";
-import { addEdge } from "../mutations/addEdge";
-import { deleteEdge } from "../mutations/deleteEdge";
 import { OverlaysPanel } from "../overlaysPanel/OverlaysPanel";
-import { SnapGrid, State } from "../store/Store";
+import { SnapGrid } from "../store/Store";
 import { useSwfEditorStore, useSwfEditorStoreApi } from "../store/StoreContext";
 import { DiagramContainerContextProvider } from "./DiagramContainerContext";
 import { ConnectionLine } from "./connections/ConnectionLine";
-import { PositionalNodeHandleId } from "./connections/PositionalNodeHandles";
-import { containment, EdgeType, getDefaultEdgeTypeBetween, NodeType } from "./connections/graphStructure";
+import { containment, EdgeType, NodeType } from "./connections/graphStructure";
 import { checkIsValidConnection } from "./connections/isValidConnection";
 import { EdgeMarkers } from "./edges/EdgeMarkers";
 import { EDGE_TYPES } from "./edges/SwfEdgeTypes";
-import {
-  TransitionEdge,
-  SwfDiagramEdgeData,
-  ErrorTransitionEdge,
-  EventConditionTransitionEdge,
-  DefaultConditionTransitionEdge,
-  CompensationTransitionEdge,
-  DataConditionTransitionEdge,
-} from "./edges/SwfEdges";
+import { TransitionEdge, SwfDiagramEdgeData, ConditionEdge, DefaultEdge } from "./edges/SwfEdges";
 import { buildHierarchy } from "./graph/graph";
-import { getContainmentRelationship, getSwfBoundsCenterPoint, getHandlePosition } from "./maths/SwfMaths";
+import { getContainmentRelationship } from "./maths/SwfMaths";
 import { DEFAULT_NODE_SIZES, MIN_NODE_SIZES } from "./nodes/SwfDefaultSizes";
 import { NODE_TYPES } from "./nodes/SwfNodeTypes";
 import {
-  OperationState,
-  SwitchState,
-  SleepState,
-  SwfDiagramNodeData,
-  ParallelState,
-  InjectState,
-  ForEachState,
-  CallbackState,
-  EventState,
+  CallTask,
+  DoTask,
+  EmitTask,
+  ForTask,
+  ForkTask,
+  ListenTask,
+  RaiseTask,
+  RunTask,
+  SetTask,
+  SwitchTask,
+  TryTask,
+  WaitTask,
   UnknownNode,
+  SwfDiagramNodeData,
 } from "./nodes/SwfNodes";
 import { DiagramCommands } from "./DiagramCommands";
 import { getAutoLayoutedInfo } from "../autolayout/autoLayoutInfo";
@@ -94,27 +87,26 @@ const DELETE_NODE_KEY_CODES = ["Backspace", "Delete"];
 const AREA_ABOVE_OVERLAYS_PANEL = 120;
 
 const nodeTypes: Record<NodeType, any> = {
-  [NODE_TYPES.callbackState]: CallbackState,
-  [NODE_TYPES.eventState]: EventState,
-  [NODE_TYPES.foreachState]: ForEachState,
-  [NODE_TYPES.injectState]: InjectState,
-  [NODE_TYPES.operationState]: OperationState,
-  [NODE_TYPES.parallelState]: ParallelState,
-  [NODE_TYPES.sleepState]: SleepState,
-  [NODE_TYPES.switchState]: SwitchState,
+  [NODE_TYPES.CallTask]: CallTask,
+  [NODE_TYPES.DoTask]: DoTask,
+  [NODE_TYPES.EmitTask]: EmitTask,
+  [NODE_TYPES.ForTask]: ForTask,
+  [NODE_TYPES.ForkTask]: ForkTask,
+  [NODE_TYPES.ListenTask]: ListenTask,
+  [NODE_TYPES.RaiseTask]: RaiseTask,
+  [NODE_TYPES.RunTask]: RunTask,
+  [NODE_TYPES.SetTask]: SetTask,
+  [NODE_TYPES.SwitchTask]: SwitchTask,
+  [NODE_TYPES.TryTask]: TryTask,
+  [NODE_TYPES.WaitTask]: WaitTask,
   [NODE_TYPES.unknown]: UnknownNode,
 };
 
 const edgeTypes: Record<EdgeType, any> = {
-  [EDGE_TYPES.compensationTransition]: CompensationTransitionEdge,
-  [EDGE_TYPES.dataConditionTransition]: DataConditionTransitionEdge,
-  [EDGE_TYPES.defaultConditionTransition]: DefaultConditionTransitionEdge,
-  [EDGE_TYPES.errorTransition]: ErrorTransitionEdge,
-  [EDGE_TYPES.eventConditionTransition]: EventConditionTransitionEdge,
+  [EDGE_TYPES.condition]: ConditionEdge,
+  [EDGE_TYPES.default]: DefaultEdge,
   [EDGE_TYPES.transition]: TransitionEdge,
 };
-
-const MIME_TYPE_FOR_SWF_EDITOR_NODE = "kie-swf-editor--node";
 
 export type DiagramRef = {
   getReactFlowInstance: () => RF.ReactFlowInstance | undefined;
@@ -390,49 +382,12 @@ export const Diagram = React.forwardRef<DiagramRef, { container: React.RefObject
 
           // --------- This is where we draw the line between the diagram and the model.
 
-          // Delete the current edge from the model
-          deleteEdge({
-            definitions: state.swf.model,
-            edge: {
-              id: oldEdge.id,
-              swfObject: oldEdge.data!.swfObject,
-              sourceId: oldEdge.data!.swfSource!.id!,
-              targetId: oldEdge.data!.swfTarget!.id!,
-            },
-          });
+          //TODO: Delete the current edge from the model
 
-          const lastWaypoint = getSwfBoundsCenterPoint(targetBounds);
-          const firstWaypoint = getSwfBoundsCenterPoint(sourceBounds);
+          //TODO:  Create a new edge in the model
 
-          // Create a new edge in the model
-          const newEdgeId = addEdge({
-            definitions: state.swf.model,
-            edge: {
-              autoPositionedEdgeMarker: undefined,
-              type: oldEdge.type as EdgeType,
-              targetHandle: ((newConnection.targetHandle as PositionalNodeHandleId) ??
-                getHandlePosition({ shapeBounds: targetBounds, waypoint: lastWaypoint })
-                  .handlePosition) as PositionalNodeHandleId,
-              sourceHandle: ((newConnection.sourceHandle as PositionalNodeHandleId) ??
-                getHandlePosition({ shapeBounds: sourceBounds, waypoint: firstWaypoint })
-                  .handlePosition) as PositionalNodeHandleId,
-            },
-            sourceNode: {
-              type: sourceNode.type as NodeType,
-              href: sourceNode.id,
-              data: sourceNode.data,
-              bounds: sourceBounds,
-            },
-            targetNode: {
-              type: targetNode.type as NodeType,
-              href: targetNode.id,
-              data: targetNode.data,
-              bounds: targetBounds,
-            },
-          });
-
-          // Keep the updated edge selected
-          state.diagram._selectedEdges = [newEdgeId];
+          //TODO: Keep the updated edge selected
+          //state.diagram._selectedEdges = [newEdgeId];
 
           // Finish edge update atomically.
           state.diagram.ongoingConnection = undefined;

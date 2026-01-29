@@ -20,7 +20,7 @@
 import { NodeNature } from "./NodeNature";
 import { SwfEdge } from "../diagram/graph/graph";
 import { deleteEdge } from "./deleteEdge";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export function deleteNode({
   definitions,
@@ -28,7 +28,7 @@ export function deleteNode({
   __readonly_nodeNature,
   __readonly_swfObjectId,
 }: {
-  definitions: Specification.IWorkflow;
+  definitions: Specification.Workflow;
   __readonly_swfEdges: SwfEdge[];
   __readonly_nodeNature: NodeNature;
   __readonly_swfObjectId: string | undefined;
@@ -50,9 +50,9 @@ export function deleteNode({
   }
 
   // Delete the swfObject itself
-  if (__readonly_nodeNature === NodeNature.SWF_STATE) {
-    const nodeIndex = (definitions.states ?? []).findIndex((d) => d["name"] === __readonly_swfObjectId);
-    definitions.states?.splice(nodeIndex, 1)?.[0];
+  if (__readonly_nodeNature === NodeNature.SWF_TASK) {
+    const nodeIndex = (definitions.do ?? []).findIndex((t) => Object.keys(t)[0] === __readonly_swfObjectId);
+    definitions.do?.splice(nodeIndex, 1)?.[0];
   } else if (__readonly_nodeNature === NodeNature.UNKNOWN) {
     // Ignore. There's no swfObject here.
   } else {

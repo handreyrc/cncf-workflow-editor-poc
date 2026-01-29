@@ -37,28 +37,29 @@ import { useEffectAfterFirstRender } from "./useEffectAfterFirstRender";
 import { INITIAL_COMPUTED_CACHE } from "./store/computed/initial";
 import { Commands, CommandsContextProvider, useCommands } from "./commands/CommandsContextProvider";
 import { SwfEditorSettingsContextProvider } from "./settings/SwfEditorSettingsContext";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 import "./SwfEditor.css"; // Leave it for last, as this overrides some of the PF and RF styles.
 import { swfEditorDictionaries, SwfEditorI18nContext, swfEditorI18nDefaults, useSwfEditorI18n } from "./i18n";
 import { I18nDictionariesProvider } from "@kie-tools-core/i18n/dist/react-components";
+import { toPlainObject } from "lodash";
 
 const ON_MODEL_CHANGE_DEBOUNCE_TIME_IN_MS = 500;
 
 const SVG_PADDING = 20;
 
 export type SwfEditorRef = {
-  reset: (model: Specification.IWorkflow) => void;
+  reset: (model: Specification.Workflow) => void;
   getDiagramSvg: () => Promise<string | undefined>;
   getCommands: () => Commands;
 };
 
-export type OnSwfModelChange = (model: Specification.IWorkflow) => void;
+export type OnSwfModelChange = (model: Specification.Workflow) => void;
 
 export type SwfEditorProps = {
   /**
    * The SWF itself.
    */
-  model: Specification.IWorkflow;
+  model: Specification.Workflow;
   /**
    * Called when a change occurs on `model`, so the controlled flow of the component can be done.
    */

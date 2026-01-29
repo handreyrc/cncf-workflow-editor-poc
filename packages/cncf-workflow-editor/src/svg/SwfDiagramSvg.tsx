@@ -19,31 +19,27 @@
 
 import * as React from "react";
 import * as RF from "reactflow";
-import {
-  CompensationTransitionPath,
-  DataConditionTransitionPath,
-  DefaultConditionTransitionPath,
-  ErrorTransitionPath,
-  EventConditionTransitionPath,
-  SwfDiagramEdgeData,
-  TransitionPath,
-} from "../diagram/edges/SwfEdges";
+import { ConditionPath, DefaultPath, SwfDiagramEdgeData, TransitionPath } from "../diagram/edges/SwfEdges";
 import { SwfDiagramNodeData } from "../diagram/nodes/SwfNodes";
 import { SnapGrid, State } from "../store/Store";
 import { EdgeMarkers } from "../diagram/edges/EdgeMarkers";
 import { EDGE_TYPES } from "../diagram/edges/SwfEdgeTypes";
 import { getSnappedMultiPointAnchoredEdgePath } from "../diagram/edges/getSnappedMultiPointAnchoredEdgePath";
 import {
-  CallbackstateSvg,
-  EventstateSvg,
-  ForeachstateSvg,
-  InjectstateSvg,
-  OperationstateSvg,
-  ParallelstateSvg,
-  SleepstateSvg,
+  CallTaskSvg,
+  DoTaskSvg,
+  EmitTaskSvg,
+  ForTaskSvg,
+  ForkTaskSvg,
+  ListenTaskSvg,
+  RaiseTaskSvg,
+  RunTaskSvg,
+  SetTaskSvg,
+  SwitchTaskSvg,
+  TryTaskSvg,
+  WaitTaskSvg,
   UnknownNodeSvg,
   NodeLabelPosition,
-  SwitchstateSvg,
 } from "../diagram/nodes/SwfNodeSvgs";
 import { NODE_TYPES } from "../diagram/nodes/SwfNodeTypes";
 import { useMemo } from "react";
@@ -85,12 +81,12 @@ export function SwfDiagramSvg({
       const { height, width, ...style } = node.style!;
 
       //Name is mandatory
-      const label = node.data!.swfObject!.name!;
+      const label = Object.keys(node.data!.swfObject!)[0];
 
       return (
         <g data-kie-swf-node-id={node.id} key={node.id}>
-          {node.type === NODE_TYPES.callbackState && (
-            <CallbackstateSvg
+          {node.type === NODE_TYPES.CallTask && (
+            <CallTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -99,8 +95,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.eventState && (
-            <EventstateSvg
+          {node.type === NODE_TYPES.DoTask && (
+            <DoTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -109,8 +105,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.foreachState && (
-            <ForeachstateSvg
+          {node.type === NODE_TYPES.EmitTask && (
+            <EmitTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -119,8 +115,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.injectState && (
-            <InjectstateSvg
+          {node.type === NODE_TYPES.ForTask && (
+            <ForTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -129,8 +125,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.operationState && (
-            <OperationstateSvg
+          {node.type === NODE_TYPES.ForkTask && (
+            <ForkTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -139,8 +135,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.parallelState && (
-            <ParallelstateSvg
+          {node.type === NODE_TYPES.ListenTask && (
+            <ListenTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -149,8 +145,8 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.sleepState && (
-            <SleepstateSvg
+          {node.type === NODE_TYPES.RaiseTask && (
+            <RaiseTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -159,8 +155,48 @@ export function SwfDiagramSvg({
               {...shapeStyle}
             />
           )}
-          {node.type === NODE_TYPES.switchState && (
-            <SwitchstateSvg
+          {node.type === NODE_TYPES.RunTask && (
+            <RunTaskSvg
+              width={node.width!}
+              height={node.height!}
+              x={node.positionAbsolute!.x}
+              y={node.positionAbsolute!.y}
+              {...style}
+              {...shapeStyle}
+            />
+          )}
+          {node.type === NODE_TYPES.SetTask && (
+            <SetTaskSvg
+              width={node.width!}
+              height={node.height!}
+              x={node.positionAbsolute!.x}
+              y={node.positionAbsolute!.y}
+              {...style}
+              {...shapeStyle}
+            />
+          )}
+          {node.type === NODE_TYPES.SwitchTask && (
+            <SwitchTaskSvg
+              width={node.width!}
+              height={node.height!}
+              x={node.positionAbsolute!.x}
+              y={node.positionAbsolute!.y}
+              {...style}
+              {...shapeStyle}
+            />
+          )}
+          {node.type === NODE_TYPES.TryTask && (
+            <TryTaskSvg
+              width={node.width!}
+              height={node.height!}
+              x={node.positionAbsolute!.x}
+              y={node.positionAbsolute!.y}
+              {...style}
+              {...shapeStyle}
+            />
+          )}
+          {node.type === NODE_TYPES.WaitTask && (
+            <WaitTaskSvg
               width={node.width!}
               height={node.height!}
               x={node.positionAbsolute!.x}
@@ -228,11 +264,8 @@ export function SwfDiagramSvg({
         });
         return (
           <React.Fragment key={e.id}>
-            {e.type === EDGE_TYPES.compensationTransition && <CompensationTransitionPath d={path} />}
-            {e.type === EDGE_TYPES.dataConditionTransition && <DataConditionTransitionPath d={path} />}
-            {e.type === EDGE_TYPES.defaultConditionTransition && <DefaultConditionTransitionPath d={path} />}
-            {e.type === EDGE_TYPES.errorTransition && <ErrorTransitionPath d={path} />}
-            {e.type === EDGE_TYPES.eventConditionTransition && <EventConditionTransitionPath d={path} />}
+            {e.type === EDGE_TYPES.condition && <ConditionPath d={path} />}
+            {e.type === EDGE_TYPES.default && <DefaultPath d={path} />}
             {e.type === EDGE_TYPES.transition && <TransitionPath d={path} />}
           </React.Fragment>
         );

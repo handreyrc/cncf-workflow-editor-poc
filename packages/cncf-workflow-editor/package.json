@@ -48,7 +48,7 @@
     "@patternfly/react-core": "^5.4.1",
     "@patternfly/react-icons": "^5.4.1",
     "@patternfly/react-styles": "^5.4.0",
-    "@serverlessworkflow/sdk-typescript": "^0.8.4",
+    "@serverlessworkflow/sdk": "^1.0.1",
     "@visx/text": "^3.3.0",
     "d3-drag": "^3.0.0",
     "d3-selection": "^3.0.0",

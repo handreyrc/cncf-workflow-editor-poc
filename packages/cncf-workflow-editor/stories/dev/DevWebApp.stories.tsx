@@ -25,27 +25,62 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/js/layouts/Flex";
 import { Page, PageSection } from "@patternfly/react-core/dist/js/components/Page";
 import { SwfEditorWrapper } from "../swfEditorStoriesWrapper";
 import { SwfEditorProps, OnSwfModelChange } from "../../src/SwfEditor";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Classes, Specification } from "@serverlessworkflow/sdk";
+import { toPlainObject } from "lodash";
 
-const initialContent = `id: helloworld
-version: '1.0'
-specVersion: '0.8'
-name: Hello World Workflow
-description: Inject Hello World
-start: Hello State
-states:
-  - type: inject
-    name: Hello State
-    data:
-      result: Hello World!
-    end: true`;
+const content = `
+document:
+  dsl: '1.0.0'
+  namespace: examples
+  name: accumulate-room-readings
+  version: '0.1.0'
+do:
+  - consumeReading:
+      listen:
+        to:
+          all:
+            - with:
+                source: https://my.home.com/sensor
+                type: my.home.sensors.temperature
+              correlate:
+                roomId:
+                  from: .roomid
+            - with:
+                source: https://my.home.com/sensor
+                type: my.home.sensors.humidity
+              correlate:
+                roomId:
+                  from: .roomid
+      output:
+        as: .data.reading
+  - logReading:
+      for:
+        each: reading
+        in: .readings
+      do:
+        - callOrderService:
+            call: openapi
+            with:
+              document:
+                endpoint: http://myorg.io/ordersservices.json
+              operationId: logreading
+  - generateReport:
+      call: openapi
+      with:
+        document:
+          endpoint: http://myorg.io/ordersservices.json
+        operationId: produceReport
+timeout:
+  after:
+    hours: 1
+`;
 
 function DevWebApp(args: SwfEditorProps) {
   const [state, setState] = useState<{
-    stack: Specification.IWorkflow[];
+    stack: Specification.Workflow[];
     pointer: number;
   }>(() => {
-    const model = Specification.Workflow.fromSource(initialContent, true);
+    const model = toPlainObject(Classes.Workflow.deserialize(content));
     return {
       stack: !model ? [] : [model],
       pointer: 0,
@@ -63,7 +98,7 @@ function DevWebApp(args: SwfEditorProps) {
         if (item.kind === "file") {
           const reader = new FileReader();
           reader.addEventListener("load", ({ target }) => {
-            const model = Specification.Workflow.fromSource(target?.result as string, true);
+            const model = toPlainObject(Classes.Workflow.deserialize(target?.result as string));
             setState({ stack: [model.normalize()], pointer: 0 });
           });
           reader.readAsText(item.getAsFile() as any);
@@ -77,7 +112,7 @@ function DevWebApp(args: SwfEditorProps) {
   }, []);
 
   const reset = useCallback(() => {
-    const model = Specification.Workflow.fromSource(initialContent, true);
+    const model = toPlainObject(Classes.Workflow.deserialize(content));
     setState({
       stack: [model.normalize()],
       pointer: 0,
@@ -90,10 +125,10 @@ function DevWebApp(args: SwfEditorProps) {
 
   const downloadAsJson = useCallback(() => {
     if (downloadRef.current) {
-      const fileBlob = new Blob([Specification.Workflow.toJson(currentModel.normalize())], {
+      const fileBlob = new Blob([Classes.Workflow.serialize(currentModel, "json", true)], {
         type: "application/json",
       });
-      downloadRef.current.download = `${createId(10)}.sw.json`;
+      downloadRef.current.download = `${createId(10)}.json`;
       downloadRef.current.href = URL.createObjectURL(fileBlob);
       downloadRef.current.click();
     }
@@ -101,21 +136,21 @@ function DevWebApp(args: SwfEditorProps) {
 
   const downloadAsYaml = useCallback(() => {
     if (downloadRef.current) {
-      const fileBlob = new Blob([Specification.Workflow.toYaml(currentModel.normalize())], {
+      const fileBlob = new Blob([Classes.Workflow.serialize(currentModel, "yaml", true)], {
         type: "application/yaml",
       });
-      downloadRef.current.download = `${createId(10)}.sw.yaml`;
+      downloadRef.current.download = `${createId(10)}.yaml`;
       downloadRef.current.href = URL.createObjectURL(fileBlob);
       downloadRef.current.click();
     }
   }, [currentModel]);
 
   const copyAsJson = useCallback(() => {
-    navigator.clipboard.writeText(Specification.Workflow.toJson(currentModel.normalize()));
+    navigator.clipboard.writeText(Classes.Workflow.serialize(currentModel, "json", true));
   }, [currentModel]);
 
   const copyAsYaml = useCallback(() => {
-    navigator.clipboard.writeText(Specification.Workflow.toYaml(currentModel.normalize()));
+    navigator.clipboard.writeText(Classes.Workflow.serialize(currentModel, "yaml", true));
   }, [currentModel]);
 
   const undo = useCallback(() => {
@@ -139,7 +174,7 @@ function DevWebApp(args: SwfEditorProps) {
 
   const onSelectModel = useCallback(
     (newContent) => {
-      onModelChange(Specification.Workflow.fromSource(newContent, true));
+      onModelChange(toPlainObject(Classes.Workflow.deserialize(newContent)));
     },
     [onModelChange]
   );
@@ -162,7 +197,7 @@ function DevWebApp(args: SwfEditorProps) {
                     <h5>(Drag & drop a file anywhere to open it)</h5>
                   </FlexItem>
                   <FlexItem shrink={{ default: "shrink" }}>
-                    <button onClick={() => onSelectModel(initialContent)}>Empty</button>
+                    <button onClick={() => onSelectModel(content)}>Empty</button>
                     &nbsp; &nbsp; | &nbsp; &nbsp;
                     <button disabled={!isUndoEnabled} style={{ opacity: isUndoEnabled ? 1 : 0.5 }} onClick={undo}>
                       {`Undo (${state.pointer})`}
@@ -233,7 +268,7 @@ type Story = StoryObj<typeof DevWebApp>;
 export const WebApp: Story = {
   render: (args) => DevWebApp(args),
   args: {
-    model: Specification.Workflow.fromSource(initialContent, true),
+    model: toPlainObject(Classes.Workflow.deserialize(content)),
     issueTrackerHref: "https://github.com/apache/incubator-kie-issues/issues/new",
     isReadOnly: false,
   },

@@ -23,9 +23,10 @@ import { snapBoundsDimensions, snapBoundsPosition } from "../SnapGrid";
 import { PositionalNodeHandleId } from "../connections/PositionalNodeHandles";
 import { AutoPositionedEdgeMarker } from "../edges/AutoPositionedEdgeMarker";
 import { NODE_TYPES } from "../nodes/SwfNodeTypes";
-import { NodeSwfObjects } from "../nodes/SwfNodes";
+import { NodeSwfObjects, NodeSwfObjectsType } from "../nodes/SwfNodes";
 import { Bounds, getCenter } from "./Maths";
 import * as RF from "reactflow";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export const DEFAULT_INTRACTION_WIDTH = 40;
 export const CONTAINER_NODES_DESIRABLE_PADDING = 60;
@@ -281,16 +282,40 @@ export function getNodeTypeFromSwfObject(swfObject: NodeSwfObjects) {
     return NODE_TYPES.unknown;
   }
 
-  const type = switchExpression(swfObject.type, {
-    sleep: NODE_TYPES.sleepState,
-    event: NODE_TYPES.eventState,
-    operation: NODE_TYPES.operationState,
-    parallel: NODE_TYPES.parallelState,
-    switch: NODE_TYPES.switchState,
-    inject: NODE_TYPES.injectState,
-    foreach: NODE_TYPES.foreachState,
+  const type = switchExpression(getTaskTypeFromTaskItem(swfObject), {
+    call: NODE_TYPES.CallTask,
+    do: NODE_TYPES.DoTask,
+    emit: NODE_TYPES.EmitTask,
+    for: NODE_TYPES.ForTask,
+    fork: NODE_TYPES.ForkTask,
+    listen: NODE_TYPES.ListenTask,
+    raise: NODE_TYPES.RaiseTask,
+    run: NODE_TYPES.RunTask,
+    set: NODE_TYPES.SetTask,
+    switch: NODE_TYPES.SwitchTask,
+    try: NODE_TYPES.TryTask,
+    wait: NODE_TYPES.WaitTask,
     default: undefined,
   });
 
   return type;
+}
+
+export function getTaskTypeFromTaskItem(taskItem: Specification.TaskItem): NodeSwfObjectsType {
+  const task = taskItem[Object.keys(taskItem)[0]];
+
+  if (task.for) return "for";
+  if (task.fork) return "fork";
+  if (task.call) return "call";
+  if (task.do) return "do";
+  if (task.emit) return "emit";
+  if (task.listen) return "listen";
+  if (task.raise) return "raise";
+  if (task.run) return "run";
+  if (task.set) return "set";
+  if (task.switch) return "switch";
+  if (task.try) return "try";
+  if (task.wait) return "wait";
+
+  return "unknown";
 }

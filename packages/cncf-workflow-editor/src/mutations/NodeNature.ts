@@ -21,18 +21,22 @@ import { NodeType } from "../diagram/connections/graphStructure";
 import { NODE_TYPES } from "../diagram/nodes/SwfNodeTypes";
 
 export enum NodeNature {
-  SWF_STATE = "SWF_ELEMENT",
+  SWF_TASK = "SWF_ELEMENT",
   UNKNOWN = "UNKNOWN",
 }
 
 export const nodeNatures: Record<NodeType, NodeNature> = {
-  [NODE_TYPES.callbackState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.eventState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.foreachState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.injectState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.operationState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.parallelState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.sleepState]: NodeNature.SWF_STATE,
-  [NODE_TYPES.switchState]: NodeNature.SWF_STATE,
+  [NODE_TYPES.CallTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.DoTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.EmitTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.ForTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.ForkTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.ListenTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.RaiseTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.RunTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.SetTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.SwitchTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.TryTask]: NodeNature.SWF_TASK,
+  [NODE_TYPES.WaitTask]: NodeNature.SWF_TASK,
   [NODE_TYPES.unknown]: NodeNature.UNKNOWN,
 };

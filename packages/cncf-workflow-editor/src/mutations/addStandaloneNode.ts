@@ -21,82 +21,114 @@ import { switchExpression } from "@kie-tools-core/switch-expression-ts";
 import { NodeType } from "../diagram/connections/graphStructure";
 import { NODE_TYPES } from "../diagram/nodes/SwfNodeTypes";
 import { NodeNature, nodeNatures } from "./NodeNature";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification, Classes } from "@serverlessworkflow/sdk";
+import { toPlainObject } from "lodash";
 import * as RF from "reactflow";
-import { Unpacked } from "../tsExt/tsExt";
 
 export function addStandaloneNode({
   definitions,
   newNode,
 }: {
-  definitions: Specification.IWorkflow;
+  definitions: Specification.Workflow;
   newNode: { type: NodeType; bounds: RF.Rect };
 }) {
-  let newState: Unpacked<Specification.States>;
+  let newTaskItem: Specification.TaskItem;
   const nature = nodeNatures[newNode.type];
 
-  if (nature === NodeNature.SWF_STATE) {
-    definitions.states ??= [] as unknown as Specification.States;
+  if (nature === NodeNature.SWF_TASK) {
+    definitions.do ??= [] as unknown as Specification.TaskList;
 
-    newState = switchExpression(newNode.type as Exclude<NodeType, "node_unknown">, {
-      [NODE_TYPES.callbackState]: {
-        ...new Specification.Callbackstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Callback State", definitions.states, 0),
+    const s: Specification.TaskItem = {
+      [`${getNextAvailableName("New CallTask", definitions.do, 0).name}`]: new Classes.CallTask(definitions),
+    };
+
+    newTaskItem = switchExpression(newNode.type as Exclude<NodeType, "node_unknown">, {
+      [NODE_TYPES.CallTask]: {
+        [`${getNextAvailableName("New CallTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.eventState]: {
-        ...new Specification.Eventstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Event State", definitions.states, 0),
+      [NODE_TYPES.DoTask]: {
+        [`${getNextAvailableName("New DoTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.foreachState]: {
-        ...new Specification.Foreachstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New ForEach State", definitions.states, 0),
+      [NODE_TYPES.EmitTask]: {
+        [`${getNextAvailableName("New EmitTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.injectState]: {
-        ...new Specification.Injectstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Inject State", definitions.states, 0),
+      [NODE_TYPES.ForTask]: {
+        [`${getNextAvailableName("New ForTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.operationState]: {
-        ...new Specification.Operationstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Operation State", definitions.states, 0),
+      [NODE_TYPES.ForkTask]: {
+        [`${getNextAvailableName("New ForkTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.parallelState]: {
-        ...new Specification.Parallelstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Parallel State", definitions.states, 0),
+      [NODE_TYPES.ListenTask]: {
+        [`${getNextAvailableName("New ListenTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.sleepState]: {
-        ...new Specification.Sleepstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Sleep State", definitions.states, 0),
+      [NODE_TYPES.RaiseTask]: {
+        [`${getNextAvailableName("New RaiseTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
-      [NODE_TYPES.switchState]: {
-        ...new Specification.Databasedswitchstate(definitions).asPlainObject(),
-        ...getNextAvailableName("New Data Switch State", definitions.states, 0),
+      [NODE_TYPES.RunTask]: {
+        [`${getNextAvailableName("New RunTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
+      },
+      [NODE_TYPES.SetTask]: {
+        [`${getNextAvailableName("New SetTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
+      },
+      [NODE_TYPES.TryTask]: {
+        [`${getNextAvailableName("New TryTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
+      },
+      [NODE_TYPES.WaitTask]: {
+        [`${getNextAvailableName("New WaitTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
+      },
+      [NODE_TYPES.SwitchTask]: {
+        [`${getNextAvailableName("New SwitchTask", definitions.do, 0).name}`]: toPlainObject(
+          new Classes.CallTask(definitions)
+        ),
       },
     });
 
-    definitions.states?.push(newState);
+    definitions.do?.push(newTaskItem);
   } else {
     throw new Error(`Unknown node usage '${nature}'.`);
   }
 
-  return newState.name;
+  return Object.keys(newTaskItem)[0];
 }
 
 export function getNextAvailableName(
   name: string,
-  states: Specification.States,
+  tasks: Specification.TaskList,
   count: number
 ): { id: string; name: string } {
-  if (!states || states.length === 0) {
+  if (!tasks || tasks.length === 0) {
     return { id: name, name };
   }
-  states.forEach((state) => {
-    if (state.name === name) {
+  tasks.forEach((taskItem) => {
+    if (Object.keys(taskItem)[0] === name) {
       const index = name.lastIndexOf("_");
       if (index >= 0) {
         name = name.slice(0, index);
       }
       count++;
-      name = getNextAvailableName(name + "_" + count, states, count).name;
+      name = getNextAvailableName(name + "_" + count, tasks, count).name;
     }
   });
 

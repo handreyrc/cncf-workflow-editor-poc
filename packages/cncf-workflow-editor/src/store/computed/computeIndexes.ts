@@ -18,30 +18,29 @@
  */
 
 import { State } from "../Store";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 import { SwfEdge, SwfEdgeTypes } from "../../diagram/graph/graph";
-import { Unpacked } from "../../tsExt/tsExt";
 import { buildEdgeId } from "../../diagram/edges/useKieEdgePath";
-import { ITransition } from "@serverlessworkflow/sdk-typescript/lib/definitions/transition";
+import { getTaskTypeFromTaskItem } from "../../diagram/maths/SwfMaths";
 
 export function computeIndexedSwf(definitions: State["swf"]["model"]) {
   const swfEdgesBySwfRef = new Map<string, SwfEdge & { index: number }>();
-  const swfNodesByHref = new Map<string, Unpacked<Specification.States> & { index: number }>();
+  const swfNodesByHref = new Map<string, Object & { index: number }>();
 
-  const states = definitions.states;
+  const tasks = definitions.do;
 
-  for (let i = 0; i < states.length; i++) {
-    const state = states[i];
+  for (let i = 0; i < tasks.length; i++) {
+    const taskItem = tasks[i];
 
     // SWFShape
     // Use state name as id once the spec 0.8 is based on unique state names
-    swfNodesByHref.set(state.name!, { ...state, index: i });
+    swfNodesByHref.set(Object.keys(taskItem)[0], { ...taskItem, index: i });
 
     // SWFNode
-    const stateEdges = buildSwfEdgesForNode(state, i);
+    const taskEdges = buildSwfEdgesForNode(tasks, i);
 
-    for (let j = 0; j < stateEdges.length; j++) {
-      swfEdgesBySwfRef.set(stateEdges[j].id!, { ...stateEdges[j], index: swfEdgesBySwfRef.size });
+    for (let j = 0; j < taskEdges.length; j++) {
+      swfEdgesBySwfRef.set(taskEdges[j].id!, { ...taskEdges[j], index: swfEdgesBySwfRef.size });
     }
   }
   return {
@@ -50,73 +49,34 @@ export function computeIndexedSwf(definitions: State["swf"]["model"]) {
   };
 }
 
-function buildSwfEdgesForNode(node: Unpacked<Specification.States>, index: number): SwfEdge[] {
+function buildSwfEdgesForNode(tasks: Specification.TaskList, index: number): SwfEdge[] {
   const edges: SwfEdge[] = [];
+  const node = tasks[index];
+  const nodeType = getTaskTypeFromTaskItem(node);
 
-  //compensation
-  if (node.compensatedBy) {
-    edges.push(getCompensationTransition(index, node));
-  }
+  switch (nodeType) {
+    case "call":
+    case "do":
+    case "emit":
+    case "for":
+    case "fork":
+    case "listen":
+    case "raise":
+    case "run":
+    case "set":
+    case "try":
+    case "wait": {
+      const transition = getTransition(index, tasks);
 
-  switch (node.type) {
-    case "sleep":
-    case "event":
-    case "operation":
-    case "parallel": {
-      const state = node as
-        | Specification.ISleepstate
-        | Specification.IEventstate
-        | Specification.IOperationstate
-        | Specification.Parallelstate;
-
-      if (state.transition) {
-        edges.push(getTransition(index, state, state.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitions(index, state, state.onErrors).forEach((errorTransitions) => edges.push(errorTransitions));
-      }
-
-      break;
-    }
-    case "inject":
-    case "foreach":
-    case "callback": {
-      const state = node as Specification.IInjectstate | Specification.IForeachstate | Specification.ICallbackstate;
-
-      if (state.transition) {
-        edges.push(getTransition(index, state, state.transition));
+      if (transition) {
+        edges.push(transition);
       }
 
       break;
     }
 
     case "switch": {
-      const state = node as Specification.Switchstate;
-
-      if ("dataConditions" in state) {
-        const switchData = state as Specification.IDatabasedswitchstate;
-        if (switchData.dataConditions) {
-          getConditionTransitions(index, node, switchData.dataConditions).forEach((dataConditions) =>
-            edges.push(dataConditions)
-          );
-        }
-      } else {
-        const switchEvent = state as Specification.IEventbasedswitchstate;
-        if (switchEvent.eventConditions) {
-          getConditionTransitions(index, node, switchEvent.eventConditions).forEach((eventConditions) =>
-            edges.push(eventConditions)
-          );
-        }
-      }
-
-      if (state.defaultCondition?.transition) {
-        edges.push(getDefaultTransition(index, state, state.defaultCondition.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitions(index, state, state.onErrors).forEach((errorTransitions) => edges.push(errorTransitions));
-      }
+      getConditionTransitions(index, tasks).forEach((eventConditions) => edges.push(eventConditions));
 
       break;
     }
@@ -128,73 +88,47 @@ function buildSwfEdgesForNode(node: Unpacked<Specification.States>, index: numbe
   return edges;
 }
 
-function getCompensationTransition(index: number, node: Unpacked<Specification.States>): SwfEdge {
-  return buildSwfEdge(index, node, node.name!, node.compensatedBy!, "compensationTransition");
+function getTransition(index: number, tasks: Specification.TaskList): SwfEdge | undefined {
+  const taskItem = tasks[index];
+  const taskName = Object.keys(taskItem)[0];
+  const task = taskItem[taskName];
+
+  if (task.then !== undefined) {
+    switch (task.then) {
+      case "exit":
+      case "end":
+        return undefined;
+      case "continue":
+        break;
+      default:
+        return buildSwfEdge(index, taskItem, taskName, task.then, "transition");
+    }
+  }
+
+  // solve implincit edge connection
+  if (index + 1 < tasks.length) {
+    const nextTaskName = Object.keys(tasks[index + 1])[0];
+
+    return buildSwfEdge(index, taskItem, taskName, nextTaskName, "transition");
+  }
+
+  return undefined;
 }
 
-function getTransition(
-  index: number,
-  node: Unpacked<Specification.States>,
-  transition: string | Specification.ITransition
-): SwfEdge {
-  return buildSwfEdge(index, node, node.name!, getNextNodeFromTransition(transition), "transition");
-}
-
-function getErrorTransitions(
-  index: number,
-  node: Unpacked<Specification.States>,
-  errors: Specification.IError[]
-): SwfEdge[] {
-  const errorTransitions: SwfEdge[] = [];
-
-  errors.forEach((error) => {
-    errorTransitions.push(
-      buildSwfEdge(index, node, node.name!, getNextNodeFromTransition(error.transition), "errorTransition")
-    );
-  });
-
-  return errorTransitions;
-}
-
-function getDefaultTransition(
-  index: number,
-  node: Unpacked<Specification.States>,
-  transition: string | Specification.ITransition
-): SwfEdge {
-  return buildSwfEdge(index, node, node.name!, getNextNodeFromTransition(transition), "defaultConditionTransition");
-}
-
-function getConditionTransitions(
-  index: number,
-  node: Unpacked<Specification.States>,
-  conditions: Specification.Datacondition[] | Specification.Eventcondition[]
-): SwfEdge[] {
+function getConditionTransitions(index: number, tasks: Specification.TaskList): SwfEdge[] {
   const conditionTransitions: SwfEdge[] = [];
+  const taskItem = tasks[index];
+  const taskName = Object.keys(taskItem)[0];
+  const conditions = (taskItem[Object.keys(taskItem)[0]] as Specification.SwitchTask).switch!;
 
   conditions.forEach((condition) => {
-    if ("eventRef" in condition) {
-      const transitionEventCondition = condition as Specification.ITransitioneventcondition;
-      conditionTransitions.push(
-        buildSwfEdge(
-          index,
-          node,
-          node.name!,
-          getNextNodeFromTransition(transitionEventCondition.transition),
-          "eventConditionTransition"
-        )
-      );
+    const switchItem = Object.keys(condition)[0];
+    const switchCase = condition[switchItem];
+
+    if (switchItem === "default") {
+      conditionTransitions.push(buildSwfEdge(index, taskItem, taskName, switchCase.then, "default"));
     } else {
-      // Specification.Enddatacondition won't be created for now
-      const transitionDataCondition = condition as Specification.ITransitiondatacondition;
-      conditionTransitions.push(
-        buildSwfEdge(
-          index,
-          node,
-          node.name!,
-          getNextNodeFromTransition(transitionDataCondition.transition),
-          "dataConditionTransition"
-        )
-      );
+      conditionTransitions.push(buildSwfEdge(index, taskItem, taskName, switchCase.then, "condition"));
     }
   });
 
@@ -203,7 +137,7 @@ function getConditionTransitions(
 
 function buildSwfEdge(
   index: number,
-  node: Unpacked<Specification.States>,
+  node: Specification.TaskItem,
   source: string,
   target: string,
   type: SwfEdgeTypes
@@ -213,18 +147,10 @@ function buildSwfEdge(
     targetId: target,
     id: buildEdgeId(source, target, type),
     swfObject: {
-      id: node.name!,
-      type: node.type!,
+      id: Object.keys(node)[0],
+      type: getTaskTypeFromTaskItem(node),
       edgeType: type,
       index: index,
     },
   };
-}
-
-function getNextNodeFromTransition(transition: ITransition | string): string {
-  if (typeof transition === "object") {
-    return transition.nextState;
-  }
-
-  return transition;
 }

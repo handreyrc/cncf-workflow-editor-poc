@@ -28,7 +28,7 @@ import { computeIndexedSwf } from "./computed/computeIndexes";
 import { computeIsDropTargetNodeValidForSelection } from "./computed/computeIsDropTargetNodeValidForSelection";
 import { DEFAULT_VIEWPORT } from "../diagram/Diagram";
 
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 enableMapSet(); // Necessary because `Computed` has a lot of Maps and Sets.
 
@@ -54,7 +54,7 @@ export interface State {
   dispatch: (s: State) => Dispatch;
   computed: (s: State) => Computed;
   layout: (s: State) => Layout;
-  swf: { model: Specification.IWorkflow };
+  swf: { model: Specification.Workflow };
   focus: {
     consumableId: string | undefined;
   };
@@ -156,7 +156,7 @@ export const defaultStaticState = (): Omit<State, "swf" | "dispatch" | "computed
   },
 });
 
-export function createSwfEditorStore(model: Specification.IWorkflow, computedCache: ComputedStateCache<Computed>) {
+export function createSwfEditorStore(model: Specification.Workflow, computedCache: ComputedStateCache<Computed>) {
   const { diagram, ...defaultState } = defaultStaticState();
   return create(
     immer<State>(() => ({

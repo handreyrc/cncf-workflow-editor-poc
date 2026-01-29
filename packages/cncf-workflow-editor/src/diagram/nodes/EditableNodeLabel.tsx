@@ -171,7 +171,7 @@ export function EditableNodeLabel({
 
   useFocusableElement(
     ref,
-    enableAutoFocusing ?? true ? id ?? namedElement?.["name"] : undefined,
+    enableAutoFocusing ?? true ? id ?? Object.keys(namedElement!)[0] : undefined,
     useCallback(
       (cb) => {
         setTimeout(() => {
@@ -209,6 +209,7 @@ export function EditableNodeLabel({
           ref={(ref) => setLabelHeight?.(ref?.clientHeight ?? 0)}
           style={{
             whiteSpace: "pre-wrap",
+            maxWidth: "14ch", // character per line
             //...fontCssProperties,
           }}
         >

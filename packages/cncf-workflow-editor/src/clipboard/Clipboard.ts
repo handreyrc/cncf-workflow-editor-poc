@@ -23,13 +23,13 @@ import { State } from "../store/Store";
 import { NodeNature, nodeNatures } from "../mutations/NodeNature";
 import { SwfDiagramNodeData } from "../diagram/nodes/SwfNodes";
 import { NodeType } from "../diagram/connections/graphStructure";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export const SWF_EDITOR_DIAGRAM_CLIPBOARD_MIME_TYPE = "application/json+kie-swf-editor--diagram" as const;
 
 export type SwfEditorDiagramClipboard = {
   mimeType: typeof SWF_EDITOR_DIAGRAM_CLIPBOARD_MIME_TYPE;
-  swfElements: NonNullable<Unpacked<Specification.States>>[];
+  swfElements: NonNullable<Specification.TaskList>;
 };
 
 export function buildClipboardFromDiagram(rfState: RF.ReactFlowState, swfEditorState: State) {
@@ -45,8 +45,8 @@ export function buildClipboardFromDiagram(rfState: RF.ReactFlowState, swfEditorS
         const nodeNature = nodeNatures[node.type as NodeType];
 
         // Swf Elements
-        if (nodeNature === NodeNature.SWF_STATE) {
-          const swfObject = JSON.parse(JSON.stringify(node.data.swfObject)) as Unpacked<Specification.States>;
+        if (nodeNature === NodeNature.SWF_TASK) {
+          const swfObject = JSON.parse(JSON.stringify(node.data.swfObject)) as Specification.TaskItem;
 
           acc.swfElements.unshift(swfObject as any);
         } else if (nodeNature === NodeNature.UNKNOWN) {

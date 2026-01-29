@@ -28,20 +28,25 @@ import { SnapGrid } from "../store/Store";
 const elk = new ELK();
 
 export const ELK_OPTIONS = {
-  algorithm: "layered",
-  "layered.layering.strategy": "INTERACTIVE",
-  "layered.nodePlacement.strategy": "SIMPLE",
-  "nodePlacement.bk.fixedAlignment": "BALANCED",
+  "elk.algorithm": "org.eclipse.elk.layered",
   "elk.direction": "DOWN",
-  edgeRouting: "ORTHOGONAL",
-  "elk.nodePlacement.favorStraightEdges": "true",
-  "layered.mergeEdges": "false",
-  "spacing.nodeNode": "60",
-  "spacing.edgeEdgeBetweenLayers": "15",
-  "spacing.edgeNodeBetweenLayers": "35",
-  "layered.spacing.nodeNodeBetweenLayers": "100",
-  "elk.padding": "[top=-40,left=20,bottom=0,right=0]",
-  "layering.strategy": "LONGEST_PATH_SOURCE",
+  "org.eclipse.elk.layered.layering.strategy": "INTERACTIVE",
+  "org.eclipse.elk.edgeRouting": "ORTHOGONAL",
+  "elk.layered.unnecessaryBendpoints": "true",
+  "elk.layered.spacing.edgeNodeBetweenLayers": "30",
+  "org.eclipse.elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED",
+  "org.eclipse.elk.layered.nodePlacement.bk.edgeStraightening": "IMPROVE_STRAIGHTNESS",
+  "org.eclipse.elk.layered.cycleBreaking.strategy": "DEPTH_FIRST",
+  "org.eclipse.elk.insideSelfLoops.activate": "true",
+  separateConnectedComponents: "false",
+  "spacing.componentComponent": "70",
+  spacing: "75",
+  "spacing.nodeNodeBetweenLayers": "70",
+  "org.eclipse.elk.layered.nodePlacement.favorStraightEdges": "true",
+  "org.eclipse.elk.layered.considerModelOrder.strategy": "EDGES",
+  "org.eclipse.elk.layered.considerModelOrder.crossingCounterNodeInfluence": "0.001",
+  "nodePlacement.strategy": "NETWORK_SIMPLEX",
+  "org.eclipse.elk.spacing.edgeNode": "24",
 };
 
 export const FAKE_MARKER = "__$FAKE$__";

@@ -21,25 +21,22 @@ import * as React from "react";
 import * as RF from "reactflow";
 import { snapPoint } from "../SnapGrid";
 import { EDGE_TYPES } from "../edges/SwfEdgeTypes";
-import {
-  TransitionPath,
-  ErrorTransitionPath,
-  EventConditionTransitionPath,
-  DefaultConditionTransitionPath,
-  DataConditionTransitionPath,
-  CompensationTransitionPath,
-} from "../edges/SwfEdges";
+import { TransitionPath, ConditionPath, DefaultPath } from "../edges/SwfEdges";
 import { NODE_TYPES } from "../nodes/SwfNodeTypes";
 import { getPositionalHandlePosition } from "../maths/Maths";
 import {
-  EventstateSvg,
-  OperationstateSvg,
-  SwitchstateSvg,
-  SleepstateSvg,
-  ParallelstateSvg,
-  InjectstateSvg,
-  ForeachstateSvg,
-  CallbackstateSvg,
+  CallTaskSvg,
+  DoTaskSvg,
+  EmitTaskSvg,
+  ForTaskSvg,
+  ForkTaskSvg,
+  ListenTaskSvg,
+  RaiseTaskSvg,
+  RunTaskSvg,
+  SetTaskSvg,
+  SwitchTaskSvg,
+  TryTaskSvg,
+  WaitTaskSvg,
 } from "../nodes/SwfNodeSvgs";
 import { pointsToPath } from "../maths/SwfMaths";
 import { getBoundsCenterPoint } from "../maths/Maths";
@@ -86,19 +83,14 @@ export function ConnectionLine({ toX, toY, fromNode, fromHandle }: RF.Connection
   const handleId = isUpdatingFromSourceHandle ? edgeBeingUpdated?.type : edgeBeingUpdated?.type ?? fromHandle?.id;
 
   // Edges
-  if (handleId === EDGE_TYPES.compensationTransition) {
-    return <CompensationTransitionPath d={connectionLinePath} />;
-  } else if (handleId === EDGE_TYPES.dataConditionTransition) {
-    return <DataConditionTransitionPath d={connectionLinePath} />;
-  } else if (handleId === EDGE_TYPES.defaultConditionTransition) {
-    return <DefaultConditionTransitionPath d={connectionLinePath} />;
-  } else if (handleId === EDGE_TYPES.errorTransition) {
-    return <ErrorTransitionPath d={connectionLinePath} />;
-  } else if (handleId === EDGE_TYPES.eventConditionTransition) {
-    return <EventConditionTransitionPath d={connectionLinePath} />;
-  } else if (handleId === EDGE_TYPES.transition) {
+  if (handleId === EDGE_TYPES.transition) {
     return <TransitionPath d={connectionLinePath} />;
+  } else if (handleId === EDGE_TYPES.condition) {
+    return <ConditionPath d={connectionLinePath} />;
+  } else if (handleId === EDGE_TYPES.default) {
+    return <DefaultPath d={connectionLinePath} />;
   }
+
   // Nodes
   else {
     const nodeType = handleId as NodeType;
@@ -118,73 +110,93 @@ export function ConnectionLine({ toX, toY, fromNode, fromHandle }: RF.Connection
     const path = `M${fromX},${fromY} L${toXauto},${toYauto}`;
 
     const edgeSvg = switchExpression(edgeType, {
-      [EDGE_TYPES.compensationTransition]: <CompensationTransitionPath d={path} />,
-      [EDGE_TYPES.dataConditionTransition]: <DataConditionTransitionPath d={path} />,
-      [EDGE_TYPES.defaultConditionTransition]: <DefaultConditionTransitionPath d={path} />,
-      [EDGE_TYPES.errorTransition]: <ErrorTransitionPath d={path} />,
-      [EDGE_TYPES.eventConditionTransition]: <EventConditionTransitionPath d={path} />,
+      [EDGE_TYPES.condition]: <ConditionPath d={path} />,
       [EDGE_TYPES.transition]: <TransitionPath d={path} />,
+      [EDGE_TYPES.default]: <TransitionPath d={path} />,
     });
 
-    if (nodeType === NODE_TYPES.callbackState) {
+    if (nodeType === NODE_TYPES.CallTask) {
       return (
         <g>
           {edgeSvg}
-          <CallbackstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <CallTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.eventState) {
+    } else if (nodeType === NODE_TYPES.DoTask) {
       return (
         <g className={"pulse"}>
           {edgeSvg}
-          <EventstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <DoTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.foreachState) {
+    } else if (nodeType === NODE_TYPES.EmitTask) {
       return (
         <g>
           {edgeSvg}
-          <ForeachstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <EmitTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.injectState) {
+    } else if (nodeType === NODE_TYPES.ForTask) {
       return (
         <g>
           {edgeSvg}
-          <InjectstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <ForTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.operationState) {
+    } else if (nodeType === NODE_TYPES.ForkTask) {
       return (
         <g>
           {edgeSvg}
-          <OperationstateSvg
-            x={toXsnapped}
-            y={toYsnapped}
-            width={defaultSize["width"]}
-            height={defaultSize["height"]}
-          />
+          <ForkTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.parallelState) {
+    } else if (nodeType === NODE_TYPES.ListenTask) {
       return (
         <g>
           {edgeSvg}
-          <ParallelstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <ListenTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.sleepState) {
+    } else if (nodeType === NODE_TYPES.RaiseTask) {
       return (
         <g>
           {edgeSvg}
-          <SleepstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <RaiseTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
-    } else if (nodeType === NODE_TYPES.switchState) {
+    } else if (nodeType === NODE_TYPES.RunTask) {
       return (
         <g>
           {edgeSvg}
-          <SwitchstateSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+          <RunTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+        </g>
+      );
+    } else if (nodeType === NODE_TYPES.SetTask) {
+      return (
+        <g>
+          {edgeSvg}
+          <SetTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+        </g>
+      );
+    } else if (nodeType === NODE_TYPES.SwitchTask) {
+      return (
+        <g>
+          {edgeSvg}
+          <SwitchTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+        </g>
+      );
+    } else if (nodeType === NODE_TYPES.TryTask) {
+      return (
+        <g>
+          {edgeSvg}
+          <TryTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
+        </g>
+      );
+    } else if (nodeType === NODE_TYPES.WaitTask) {
+      return (
+        <g>
+          {edgeSvg}
+          <WaitTaskSvg x={toXsnapped} y={toYsnapped} width={defaultSize["width"]} height={defaultSize["height"]} />
         </g>
       );
     }

@@ -18,13 +18,17 @@
  */
 
 export const NODE_TYPES = {
-  eventState: "node_eventState" as const,
-  operationState: "node_operationState" as const,
-  switchState: "node_switchState" as const,
-  sleepState: "node_sleepState" as const,
-  parallelState: "node_parallelState" as const,
-  injectState: "node_injectState" as const,
-  foreachState: "node_forEachState" as const,
-  callbackState: "node_callbackState" as const,
+  CallTask: "node_CallTask" as const,
+  DoTask: "node_DoTask" as const,
+  ForkTask: "node_ForkTask" as const,
+  EmitTask: "node_EmitTask" as const,
+  ForTask: "node_ForTask" as const,
+  ListenTask: "node_ListenTask" as const,
+  RaiseTask: "node_RaiseTask" as const,
+  RunTask: "node_RunTask" as const,
+  SetTask: "node_SetTask" as const,
+  SwitchTask: "node_SwitchTask" as const,
+  TryTask: "node_TryTask" as const,
+  WaitTask: "node_WaitTask" as const,
   unknown: "node_unknown" as const,
 };

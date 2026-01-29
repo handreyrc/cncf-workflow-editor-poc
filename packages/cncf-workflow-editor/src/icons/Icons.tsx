@@ -20,14 +20,19 @@
 import * as React from "react";
 import { useMemo } from "react";
 import {
-  EventstateSvg,
-  OperationstateSvg,
-  SwitchstateSvg,
-  SleepstateSvg,
-  ParallelstateSvg,
-  InjectstateSvg,
-  ForeachstateSvg,
-  CallbackstateSvg,
+  CallTaskSvg,
+  DoTaskSvg,
+  EmitTaskSvg,
+  ForTaskSvg,
+  ForkTaskSvg,
+  ListenTaskSvg,
+  RaiseTaskSvg,
+  RunTaskSvg,
+  SetTaskSvg,
+  SwitchTaskSvg,
+  TryTaskSvg,
+  WaitTaskSvg,
+  UnknownNodeSvg,
 } from "../diagram/nodes/SwfNodeSvgs";
 import { switchExpression } from "@kie-tools-core/switch-expression-ts";
 import { NodeType } from "../diagram/connections/graphStructure";
@@ -67,79 +72,115 @@ export function RoundSvg({
 
 export function NodeIcon(nodeType: NodeType) {
   return switchExpression(nodeType, {
-    [NODE_TYPES.callbackState]: CallbackStateIcon,
-    [NODE_TYPES.eventState]: EventStateIcon,
-    [NODE_TYPES.foreachState]: ForEachStateIcon,
-    [NODE_TYPES.injectState]: InjectStateIcon,
-    [NODE_TYPES.operationState]: OperationStateIcon,
-    [NODE_TYPES.parallelState]: ParallelStateIcon,
-    [NODE_TYPES.sleepState]: SleepStateIcon,
-    [NODE_TYPES.switchState]: SwitchStateIcon,
+    [NODE_TYPES.CallTask]: CallTaskIcon,
+    [NODE_TYPES.DoTask]: DoTaskIcon,
+    [NODE_TYPES.EmitTask]: EmitTaskIcon,
+    [NODE_TYPES.ForTask]: ForTaskIcon,
+    [NODE_TYPES.ForkTask]: ForkTaskIcon,
+    [NODE_TYPES.ListenTask]: ListenTaskIcon,
+    [NODE_TYPES.RaiseTask]: RaiseTaskIcon,
+    [NODE_TYPES.RunTask]: RunTaskIcon,
+    [NODE_TYPES.SetTask]: SetTaskIcon,
+    [NODE_TYPES.SwitchTask]: SwitchTaskIcon,
+    [NODE_TYPES.TryTask]: TryTaskIcon,
+    [NODE_TYPES.WaitTask]: WaitTaskIcon,
     [NODE_TYPES.unknown]: UnknownIcon,
     default: () => <div>?</div>,
   });
 }
 
-export function CallbackStateIcon() {
+export function CallTaskIcon() {
   return (
     <RoundSvg>
-      <CallbackstateSvg {...nodeSvgProps} />
+      <CallTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function EventStateIcon() {
+export function DoTaskIcon() {
   return (
     <RoundSvg>
-      <EventstateSvg {...nodeSvgProps} />
+      <DoTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function ForEachStateIcon() {
+export function EmitTaskIcon() {
   return (
     <RoundSvg>
-      <ForeachstateSvg {...nodeSvgProps} />
+      <EmitTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function InjectStateIcon() {
+export function ForTaskIcon() {
   return (
     <RoundSvg>
-      <InjectstateSvg {...nodeSvgProps} />
+      <ForTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function OperationStateIcon() {
+export function ForkTaskIcon() {
   return (
     <RoundSvg>
-      <OperationstateSvg {...nodeSvgProps} />
+      <ForkTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function ParallelStateIcon() {
+export function ListenTaskIcon() {
   return (
     <RoundSvg>
-      <ParallelstateSvg {...nodeSvgProps} />
+      <ListenTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function SleepStateIcon() {
+export function RaiseTaskIcon() {
   return (
     <RoundSvg>
-      <SleepstateSvg {...nodeSvgProps} />
+      <RaiseTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }
 
-export function SwitchStateIcon() {
+export function RunTaskIcon() {
   return (
     <RoundSvg>
-      <SwitchstateSvg {...nodeSvgProps} />
+      <RunTaskSvg {...nodeSvgProps} />
+    </RoundSvg>
+  );
+}
+
+export function SetTaskIcon() {
+  return (
+    <RoundSvg>
+      <SetTaskSvg {...nodeSvgProps} />
+    </RoundSvg>
+  );
+}
+
+export function SwitchTaskIcon() {
+  return (
+    <RoundSvg>
+      <SwitchTaskSvg {...nodeSvgProps} />
+    </RoundSvg>
+  );
+}
+
+export function TryTaskIcon() {
+  return (
+    <RoundSvg>
+      <TryTaskSvg {...nodeSvgProps} />
+    </RoundSvg>
+  );
+}
+
+export function WaitTaskIcon() {
+  return (
+    <RoundSvg>
+      <WaitTaskSvg {...nodeSvgProps} />
     </RoundSvg>
   );
 }

@@ -21,17 +21,17 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { SwfEditorWrapper, StorybookSwfEditorProps } from "../../swfEditorStoriesWrapper";
 import { SwfEditor, SwfEditorProps } from "../../../src/SwfEditor";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Classes, Specification } from "@serverlessworkflow/sdk";
 
 const emptyModel = {
-  id: "Empty",
-  version: "1.0",
-  specVersion: "0.8",
-  name: "Empty Workflow",
-  description: "",
-  start: "",
-  states: [],
-} as unknown as Specification.IWorkflow;
+  document: {
+    dsl: "1.0.0",
+    name: "Empty",
+    version: "1.0.0",
+    namespace: "default",
+  },
+  do: [],
+} as Specification.Workflow;
 
 const meta: Meta<SwfEditorProps> = {
   title: "Misc/Empty",

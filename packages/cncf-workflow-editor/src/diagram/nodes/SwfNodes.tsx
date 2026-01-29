@@ -17,13 +17,12 @@
  * under the License.
  */
 
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 import * as React from "react";
 import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import * as RF from "reactflow";
 import { renameElement } from "../../mutations/renameNode";
 import { useSwfEditorStore, useSwfEditorStoreApi } from "../../store/StoreContext";
-import { Unpacked } from "../../tsExt/tsExt";
 import { PositionalNodeHandles } from "../connections/PositionalNodeHandles";
 import { NodeType, containment, outgoingStructure } from "../connections/graphStructure";
 import { EDGE_TYPES } from "../edges/SwfEdgeTypes";
@@ -32,20 +31,23 @@ import { DEFAULT_NODE_SIZES } from "./SwfDefaultSizes";
 import { EditableNodeLabel, OnEditableNodeLabelChange, useEditableNodeLabel } from "./EditableNodeLabel";
 import { getNodeLabelPosition } from "./NodeStyle";
 import {
-  CallbackstateSvg,
-  EventstateSvg,
-  ForeachstateSvg,
-  InjectstateSvg,
-  OperationstateSvg,
-  ParallelstateSvg,
-  SleepstateSvg,
-  SwitchstateSvg,
+  CallTaskSvg,
+  DoTaskSvg,
+  ForkTaskSvg,
+  EmitTaskSvg,
+  ForTaskSvg,
+  ListenTaskSvg,
+  RaiseTaskSvg,
+  RunTaskSvg,
+  SetTaskSvg,
+  SwitchTaskSvg,
+  TryTaskSvg,
+  WaitTaskSvg,
   UnknownNodeSvg,
 } from "./SwfNodeSvgs";
 import { NODE_TYPES } from "./SwfNodeTypes";
 import { OutgoingStuffNodePanel } from "./OutgoingStuffNodePanel";
 import { propsHaveSameValuesDeep } from "../memoization/memoization";
-import { useSwfEditorI18n } from "../../i18n";
 
 export type ElementFilter<E extends { __$$element: string }, Filter extends string> = E extends any
   ? E["__$$element"] extends Filter
@@ -53,7 +55,22 @@ export type ElementFilter<E extends { __$$element: string }, Filter extends stri
     : never
   : never;
 
-export type NodeSwfObjects = null | Unpacked<Specification.States>;
+export type NodeSwfObjects = null | Specification.TaskItem;
+
+export type NodeSwfObjectsType =
+  | "call"
+  | "do"
+  | "emit"
+  | "for"
+  | "fork"
+  | "listen"
+  | "raise"
+  | "run"
+  | "set"
+  | "switch"
+  | "try"
+  | "wait"
+  | "unknown";
 
 export type SwfDiagramNodeData<T extends NodeSwfObjects = NodeSwfObjects> = {
   swfObject: T;
@@ -66,718 +83,7 @@ export type SwfDiagramNodeData<T extends NodeSwfObjects = NodeSwfObjects> = {
   parentRfNode: RF.Node<SwfDiagramNodeData> | undefined;
 };
 
-//Specification.IEventstate;
-export const EventState = React.memo(
-  ({
-    data: { swfObject: eventstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.IEventstate & { __$$element: "eventstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.eventState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <EventstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={eventstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.eventState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.eventState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={eventstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.eventState,
-                })}
-                value={eventstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.IOperationstate;
-export const OperationState = React.memo(
-  ({
-    data: { swfObject: operationstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.IOperationstate & { __$$element: "operationstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.operationState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <OperationstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={operationstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.operationState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.operationState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={operationstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.operationState,
-                })}
-                value={operationstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.Switchstate;
-export const SwitchState = React.memo(
-  ({
-    data: { swfObject: switchstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.Switchstate & { __$$element: "switchstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.switchState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <SwitchstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={switchstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.switchState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.switchState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={switchstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.switchState,
-                })}
-                value={switchstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.ISleepstate;
-export const SleepState = React.memo(
-  ({
-    data: { swfObject: sleepstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.ISleepstate & { __$$element: "sleepstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.sleepState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <SleepstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={sleepstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.sleepState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.sleepState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={sleepstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.sleepState,
-                })}
-                value={sleepstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.IParallelstate;
-export const ParallelState = React.memo(
-  ({
-    data: { swfObject: parallelstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.IParallelstate & { __$$element: "parallelstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.parallelState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <ParallelstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={parallelstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.parallelState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.parallelState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={parallelstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.parallelState,
-                })}
-                value={parallelstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.IInjectstate;
-export const InjectState = React.memo(
-  ({
-    data: { swfObject: injectstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.IInjectstate & { __$$element: "injectstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.injectState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <InjectstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={injectstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.injectState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.injectState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={injectstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.injectState,
-                })}
-                value={injectstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.IForeachstate;
-export const ForEachState = React.memo(
-  ({
-    data: { swfObject: foreachstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.IForeachstate & { __$$element: "foreachstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.foreachState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <ForeachstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={foreachstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.foreachState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.foreachState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={foreachstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.foreachState,
-                })}
-                value={foreachstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
-//Specification.ICallbackstate;
-export const CallbackState = React.memo(
-  ({
-    data: { swfObject: callbackstate, index, parentRfNode },
-    selected,
-    dragging,
-    zIndex,
-    type,
-    id,
-  }: RF.NodeProps<SwfDiagramNodeData<Specification.ICallbackstate & { __$$element: "callbackstate" }>>) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
-    const isHovered = useIsHovered(ref);
-    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
-
-    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
-    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
-
-    const swfEditorStoreApi = useSwfEditorStoreApi();
-
-    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
-    const className = useNodeClassName(isValidConnectionTarget, id);
-
-    // use default node sizes
-    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.callbackState]({ snapGrid });
-
-    const setName = useCallback<OnEditableNodeLabelChange>(
-      (newName: string) => {
-        swfEditorStoreApi.setState((state) => {
-          renameElement({ definitions: state.swf.model.states, newName, index });
-        });
-      },
-      [swfEditorStoreApi, index]
-    );
-
-    return (
-      <>
-        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
-          {
-            <CallbackstateSvg
-              {...nodeDimensions}
-              x={0}
-              y={0}
-              strokeWidth={undefined}
-              fillColor={undefined}
-              strokeColor={undefined}
-            />
-          }
-        </svg>
-        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
-        <div
-          onDoubleClick={triggerEditing}
-          onKeyDown={triggerEditingIfEnter}
-          className={`kie-swf-editor--generic-node ${className}`}
-          ref={ref}
-          tabIndex={-1}
-          data-nodehref={id}
-          data-nodelabel={callbackstate["name"]}
-        >
-          <div className={`kie-swf-editor--node `}>
-            <OutgoingStuffNodePanel
-              nodeHref={id}
-              isVisible={false}
-              nodeTypes={outgoingStructure[NODE_TYPES.callbackState].nodes}
-              edgeTypes={outgoingStructure[NODE_TYPES.callbackState].edges}
-            />
-            {
-              <EditableNodeLabel
-                id={id}
-                namedElement={callbackstate}
-                isEditing={isEditingLabel}
-                setEditing={setEditingLabel}
-                position={getNodeLabelPosition({
-                  nodeType: type as typeof NODE_TYPES.callbackState,
-                })}
-                value={callbackstate["name"]}
-                onChange={setName}
-                shouldCommitOnBlur={true}
-              />
-            }
-          </div>
-        </div>
-      </>
-    );
-  },
-  propsHaveSameValuesDeep
-);
-
+// Unknown
 export const UnknownNode = React.memo(
   ({ data: { index }, selected, dragging, zIndex, type, id }: RF.NodeProps<SwfDiagramNodeData<null>>) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -826,15 +132,1082 @@ export const UnknownNode = React.memo(
   propsHaveSameValuesDeep
 );
 
+//Specification.CallTask;
+export const CallTask = React.memo(
+  ({
+    data: { swfObject: callTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "CallTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.CallTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <CallTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(callTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.CallTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.CallTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={callTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.CallTask,
+                })}
+                value={Object.keys(callTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.DoTask;
+export const DoTask = React.memo(
+  ({
+    data: { swfObject: doTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "DoTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.DoTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <DoTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(doTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.DoTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.DoTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={doTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.DoTask,
+                })}
+                value={Object.keys(doTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.EmitTask;
+export const EmitTask = React.memo(
+  ({
+    data: { swfObject: emitTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "EmitTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.EmitTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <EmitTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(emitTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.EmitTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.EmitTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={emitTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.EmitTask,
+                })}
+                value={Object.keys(emitTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.ForTask;
+export const ForTask = React.memo(
+  ({
+    data: { swfObject: forTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "ForTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.ForTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <ForTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(forTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.ForTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.ForTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={forTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.ForTask,
+                })}
+                value={Object.keys(forTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.ForkTask;
+export const ForkTask = React.memo(
+  ({
+    data: { swfObject: forkTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "ForkTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.ForkTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <ForkTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(forkTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.ForkTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.ForkTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={forkTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.ForkTask,
+                })}
+                value={Object.keys(forkTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.ListenTask;
+export const ListenTask = React.memo(
+  ({
+    data: { swfObject: listenTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "ListenTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.ListenTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <ListenTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(listenTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.ListenTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.ListenTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={listenTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.ListenTask,
+                })}
+                value={Object.keys(listenTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.RaiseTask;
+export const RaiseTask = React.memo(
+  ({
+    data: { swfObject: raiseTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "RaiseTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.RaiseTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <RaiseTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(raiseTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.RaiseTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.RaiseTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={raiseTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.RaiseTask,
+                })}
+                value={Object.keys(raiseTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.RunTask;
+export const RunTask = React.memo(
+  ({
+    data: { swfObject: runTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "RunTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.RunTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <RunTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(runTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.RunTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.RunTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={runTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.RunTask,
+                })}
+                value={Object.keys(runTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.SetTask;
+export const SetTask = React.memo(
+  ({
+    data: { swfObject: setTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "SetTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.SetTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <SetTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(setTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.SetTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.SetTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={setTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.SetTask,
+                })}
+                value={Object.keys(setTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.SwitchTask;
+export const SwitchTask = React.memo(
+  ({
+    data: { swfObject: switchTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "SwitchTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.SwitchTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <SwitchTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(switchTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.SwitchTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.SwitchTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={switchTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.SwitchTask,
+                })}
+                value={Object.keys(switchTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.TryTask;
+export const TryTask = React.memo(
+  ({
+    data: { swfObject: tryTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "TryTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.TryTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <TryTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(tryTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.TryTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.TryTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={tryTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.TryTask,
+                })}
+                value={Object.keys(tryTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
+//Specification.WaitTask;
+export const WaitTask = React.memo(
+  ({
+    data: { swfObject: waitTask, index, parentRfNode },
+    selected,
+    dragging,
+    zIndex,
+    type,
+    id,
+  }: RF.NodeProps<SwfDiagramNodeData<Specification.TaskItem & { __$$element: "WaitTask" }>>) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    const snapGrid = useSwfEditorStore((s) => s.diagram.snapGrid);
+    const isHovered = useIsHovered(ref);
+    const shouldActLikeHovered = useSwfEditorStore((s) => isHovered && s.diagram.draggingNodes.length === 0);
+
+    const { isEditingLabel, setEditingLabel, triggerEditing, triggerEditingIfEnter } = useEditableNodeLabel(id);
+    useHoveredNodeAlwaysOnTop(ref, zIndex, shouldActLikeHovered, dragging, selected, isEditingLabel);
+
+    const swfEditorStoreApi = useSwfEditorStoreApi();
+
+    const { isTargeted, isValidConnectionTarget } = useConnectionTargetStatus(id, shouldActLikeHovered);
+    const className = useNodeClassName(isValidConnectionTarget, id);
+
+    // use default node sizes
+    const nodeDimensions = DEFAULT_NODE_SIZES[NODE_TYPES.WaitTask]({ snapGrid });
+
+    const setName = useCallback<OnEditableNodeLabelChange>(
+      (newName: string) => {
+        swfEditorStoreApi.setState((state) => {
+          renameElement({ definitions: state.swf.model.do, newName, index });
+        });
+      },
+      [swfEditorStoreApi, index]
+    );
+
+    return (
+      <>
+        <svg className={`kie-swf-editor--node-shape ${className} ${selected ? "selected" : ""}`}>
+          {
+            <WaitTaskSvg
+              {...nodeDimensions}
+              x={0}
+              y={0}
+              strokeWidth={undefined}
+              fillColor={undefined}
+              strokeColor={undefined}
+            />
+          }
+        </svg>
+        <PositionalNodeHandles isTargeted={isTargeted && isValidConnectionTarget} nodeId={id} />
+        <div
+          onDoubleClick={triggerEditing}
+          onKeyDown={triggerEditingIfEnter}
+          className={`kie-swf-editor--generic-node ${className}`}
+          ref={ref}
+          tabIndex={-1}
+          data-nodehref={id}
+          data-nodelabel={Object.keys(waitTask)[0]}
+        >
+          <div className={`kie-swf-editor--node `}>
+            <OutgoingStuffNodePanel
+              nodeHref={id}
+              isVisible={false}
+              nodeTypes={outgoingStructure[NODE_TYPES.WaitTask].nodes}
+              edgeTypes={outgoingStructure[NODE_TYPES.WaitTask].edges}
+            />
+            {
+              <EditableNodeLabel
+                id={id}
+                namedElement={waitTask}
+                isEditing={isEditingLabel}
+                setEditing={setEditingLabel}
+                position={getNodeLabelPosition({
+                  nodeType: type as typeof NODE_TYPES.WaitTask,
+                })}
+                value={Object.keys(waitTask)[0]}
+                onChange={setName}
+                shouldCommitOnBlur={true}
+              />
+            }
+          </div>
+        </div>
+      </>
+    );
+  },
+  propsHaveSameValuesDeep
+);
+
 ///
 
 export function EmptyLabel() {
-  const { i18n } = useSwfEditorI18n();
   return (
     <span style={{ fontFamily: "serif" }}>
-      <i style={{ opacity: 0.8 }}>{i18n.nodes.empty}</i>
+      <i style={{ opacity: 0.8 }}>{`<Empty>`}</i>
       <br />
-      <i style={{ opacity: 0.5, fontSize: "0.8em", lineHeight: "0.8em" }}>{i18n.nodes.doubleClickToName}</i>
+      <i style={{ opacity: 0.5, fontSize: "0.8em", lineHeight: "0.8em" }}>{`Double-click to name`}</i>
     </span>
   );
 }

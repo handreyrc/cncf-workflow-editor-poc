@@ -22,7 +22,7 @@ import { useCallback, useState, useRef, useMemo, useEffect } from "react";
 import { useArgs } from "@storybook/preview-api";
 import { SwfEditor, SwfEditorProps, SwfEditorRef } from "../src/SwfEditor";
 import { diff } from "deep-object-diff";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export type StorybookSwfEditorProps = SwfEditorProps & { rawContent: string };
 
@@ -30,7 +30,7 @@ export function SwfEditorWrapper(props?: Partial<StorybookSwfEditorProps>) {
   const [args, updateArgs] = useArgs<StorybookSwfEditorProps>();
   const argsCopy = useRef(args);
   const ref = useRef<SwfEditorRef>(null);
-  const [modelArgs, setModelArgs] = useState<Specification.IWorkflow>(args.model);
+  const [modelArgs, setModelArgs] = useState<Specification.Workflow>(args.model);
   const model = useMemo(() => props?.model ?? modelArgs, [modelArgs, props?.model]);
   const [modelChanged, setModelChange] = useState<boolean>(false);
   const [isReadOnly, setIsReadOnly] = useState(props?.isReadOnly ?? args.isReadOnly ?? false);

@@ -19,9 +19,6 @@
 
 export const EDGE_TYPES = {
   transition: "edge_transition" as const,
-  errorTransition: "edge_error" as const,
-  eventConditionTransition: "edge_eventCondition" as const,
-  dataConditionTransition: "edge_dataCondition" as const,
-  defaultConditionTransition: "edge_defaultCondition" as const,
-  compensationTransition: "edge_compensation" as const,
+  condition: "edge_condition" as const,
+  default: "edge_default" as const,
 };

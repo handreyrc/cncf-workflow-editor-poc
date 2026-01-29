@@ -28,56 +28,84 @@ export type NodeSizes<T extends NodeType = NodeType> = {
 };
 
 export const MIN_NODE_SIZES: NodeSizes = {
-  [NODE_TYPES.callbackState]: ({ snapGrid }) => {
+  [NODE_TYPES.CallTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.eventState]: ({ snapGrid }) => {
+  [NODE_TYPES.DoTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.foreachState]: ({ snapGrid }) => {
+  [NODE_TYPES.EmitTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.injectState]: ({ snapGrid }) => {
+  [NODE_TYPES.ForTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.operationState]: ({ snapGrid }) => {
+  [NODE_TYPES.ForkTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.parallelState]: ({ snapGrid }) => {
+  [NODE_TYPES.ListenTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.sleepState]: ({ snapGrid }) => {
+  [NODE_TYPES.RaiseTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.switchState]: ({ snapGrid }) => {
+  [NODE_TYPES.RunTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.SetTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.SwitchTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.TryTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.WaitTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
@@ -94,56 +122,84 @@ export const MIN_NODE_SIZES: NodeSizes = {
 };
 
 export const DEFAULT_NODE_SIZES: NodeSizes = {
-  [NODE_TYPES.callbackState]: ({ snapGrid }) => {
+  [NODE_TYPES.CallTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.eventState]: ({ snapGrid }) => {
+  [NODE_TYPES.DoTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.foreachState]: ({ snapGrid }) => {
+  [NODE_TYPES.EmitTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.injectState]: ({ snapGrid }) => {
+  [NODE_TYPES.ForTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.operationState]: ({ snapGrid }) => {
+  [NODE_TYPES.ForkTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.parallelState]: ({ snapGrid }) => {
+  [NODE_TYPES.ListenTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.sleepState]: ({ snapGrid }) => {
+  [NODE_TYPES.RaiseTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,
       height: snappedMinSize.height,
     };
   },
-  [NODE_TYPES.switchState]: ({ snapGrid }) => {
+  [NODE_TYPES.RunTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.SetTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.SwitchTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.TryTask]: ({ snapGrid }) => {
+    const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
+    return {
+      width: snappedMinSize.width,
+      height: snappedMinSize.height,
+    };
+  },
+  [NODE_TYPES.WaitTask]: ({ snapGrid }) => {
     const snappedMinSize = MIN_SIZE_FOR_NODES(snapGrid);
     return {
       width: snappedMinSize.width,

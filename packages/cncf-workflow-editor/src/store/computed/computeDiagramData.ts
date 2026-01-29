@@ -30,14 +30,13 @@ import {
   getAdjMatrix,
   traverse,
 } from "../../diagram/graph/graph";
-import { getNodeTypeFromSwfObject } from "../../diagram/maths/SwfMaths";
+import { getNodeTypeFromSwfObject, getTaskTypeFromTaskItem } from "../../diagram/maths/SwfMaths";
 import { DEFAULT_NODE_SIZES, MIN_NODE_SIZES } from "../../diagram/nodes/SwfDefaultSizes";
 import { ___NASTY_HACK_FOR_SAFARI_to_force_redrawing_svgs_and_avoid_repaint_glitches } from "../../diagram/nodes/SwfNodeSvgs";
 import { SwfDiagramNodeData, NodeSwfObjects } from "../../diagram/nodes/SwfNodes";
 import { TypeOrReturnType } from "../ComputedStateCache";
 import { Computed, State } from "../Store";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
-import { Unpacked } from "../../tsExt/tsExt";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export const NODE_LAYERS = {
   NODES: 1000, // We need a difference > 1000 here, since ReactFlow will add 1000 to the z-index when a node is selected.
@@ -101,8 +100,8 @@ export function computeDiagramData(
     const data = {
       swfObject,
       swfEdge: id ? indexedSwf.swfEdgesBySwfRef.get(id) : undefined,
-      swfSource: indexedSwf.swfNodesByHref.get(source),
-      swfTarget: indexedSwf.swfNodesByHref.get(target),
+      swfSource: indexedSwf.swfNodesByHref.get(source) as unknown as Specification.TaskItem,
+      swfTarget: indexedSwf.swfNodesByHref.get(target) as unknown as Specification.TaskItem,
     };
 
     const edge: RF.Edge<SwfDiagramEdgeData> = {
@@ -134,7 +133,7 @@ export function computeDiagramData(
   };
 
   // transitions
-  ackTransitionEdges(definitions.states, ackEdge);
+  ackTransitionEdges(definitions.do, ackEdge);
 
   // console.timeEnd("edges");
 
@@ -145,7 +144,7 @@ export function computeDiagramData(
       return undefined;
     }
 
-    const nodeName = swfObject!.name!;
+    const nodeName = Object.keys(swfObject!)[0];
 
     const data: SwfDiagramNodeData = {
       swfObject,
@@ -180,7 +179,7 @@ export function computeDiagramData(
   };
 
   const nodes: RF.Node<SwfDiagramNodeData>[] = [
-    ...(definitions.states ?? []).flatMap((swfObject, index) => {
+    ...(definitions.do ?? []).flatMap((swfObject, index) => {
       const newNode = ackNode(swfObject, index);
       return newNode ? [newNode] : [];
     }),
@@ -209,232 +208,87 @@ export function computeDiagramData(
   };
 }
 
-function ackTransitionEdges(states: Specification.States, ackEdge: AckEdge) {
-  for (let i = 0; i < states.length; i++) {
-    const state = states[i];
-
-    getEdgeArgsForNode(state, i).forEach((edge) => {
+function ackTransitionEdges(tasks: Specification.TaskList, ackEdge: AckEdge) {
+  for (let i = 0; i < tasks.length; i++) {
+    getEdgeArgsForNode(tasks, i).forEach((edge) => {
       ackEdge(edge);
     });
   }
 }
 
-function getEdgeArgsForNode(node: Unpacked<Specification.States>, index: number): EdgeArgs[] {
+function getEdgeArgsForNode(tasks: Specification.TaskList, index: number): EdgeArgs[] {
   const edges: EdgeArgs[] = [];
+  const taskItem = tasks[index];
 
-  //compensation
-  if (node.compensatedBy) {
-    edges.push(getCompensationTransitionArgs(index, node));
-  }
-
-  switch (node.type) {
-    case "sleep": {
-      const state: Specification.ISleepstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
+  switch (getTaskTypeFromTaskItem(taskItem)) {
+    case "call":
+    case "do":
+    case "emit":
+    case "for":
+    case "fork":
+    case "listen":
+    case "raise":
+    case "run":
+    case "set":
+    case "try":
+    case "wait":
+      const transition = getTransitionArgs(index, tasks);
+      if (transition) {
+        edges.push(transition);
       }
-
-      if (state.onErrors) {
-        getErrorTransitionsArgs(index, state, state.onErrors).forEach((errorargs) => edges.push(errorargs));
-      }
+      break;
+    case "switch":
+      getConditionTransitionsArgs(index, tasks).forEach((eventConditions) => edges.push(eventConditions));
 
       break;
-    }
-    case "event": {
-      const state: Specification.IEventstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitionsArgs(index, state, state.onErrors).forEach((errorargs) => edges.push(errorargs));
-      }
-
+    default:
       break;
-    }
-    case "operation": {
-      const state: Specification.IOperationstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitionsArgs(index, state, state.onErrors).forEach((errorargs) => edges.push(errorargs));
-      }
-
-      break;
-    }
-    case "parallel": {
-      const state: Specification.IParallelstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitionsArgs(index, state, state.onErrors).forEach((errorargs) => edges.push(errorargs));
-      }
-
-      break;
-    }
-    case "switch": {
-      const state: Specification.Switchstate = node;
-
-      if ("dataConditions" in state) {
-        const switchData: Specification.IDatabasedswitchstate = state;
-        if (switchData.dataConditions) {
-          getConditionTransitionsArgs(index, node, switchData.dataConditions).forEach((dataConditions) =>
-            edges.push(dataConditions)
-          );
-        }
-      } else {
-        const switchEvent: Specification.IEventbasedswitchstate = state;
-        if (switchEvent.eventConditions) {
-          getConditionTransitionsArgs(index, node, switchEvent.eventConditions).forEach((eventConditions) =>
-            edges.push(eventConditions)
-          );
-        }
-      }
-
-      if (state.defaultCondition!.transition) {
-        edges.push(getDefaultTransitionArgs(index, state, state.defaultCondition.transition));
-      }
-
-      if (state.onErrors) {
-        getErrorTransitionsArgs(index, state, state.onErrors).forEach((errorargs) => edges.push(errorargs));
-      }
-
-      break;
-    }
-    case "inject": {
-      const state: Specification.IInjectstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      break;
-    }
-    case "foreach": {
-      const state: Specification.IForeachstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      break;
-    }
-    case "callback": {
-      const state: Specification.ICallbackstate = node;
-
-      if (state.transition) {
-        edges.push(getTransitionArgs(index, state, state.transition));
-      }
-
-      break;
-    }
-    default: {
-      break;
-    }
   }
 
   return edges;
 }
 
-function getCompensationTransitionArgs(index: number, node: Unpacked<Specification.States>): EdgeArgs {
-  return buildEdgeArgs(index, node, node.compensatedBy!, "edge_compensation", "compensationTransition");
-}
+function getTransitionArgs(index: number, tasks: Specification.TaskList): EdgeArgs | undefined {
+  const taskItem = tasks[index];
+  const taskName = Object.keys(taskItem)[0];
+  const task = taskItem[taskName];
 
-function getTransitionArgs(
-  index: number,
-  node: Unpacked<Specification.States>,
-  transition: string | Specification.ITransition
-): EdgeArgs {
-  let transitionStr: string | undefined = undefined;
-  if (typeof transition === "object") {
-    transitionStr = transition.nextState;
-  } else {
-    transitionStr = transition;
-  }
-
-  return buildEdgeArgs(index, node, transitionStr, "edge_transition", "transition");
-}
-
-function getErrorTransitionsArgs(
-  index: number,
-  node: Unpacked<Specification.States>,
-  errors: Specification.IError[]
-): EdgeArgs[] {
-  const edgeArgs: EdgeArgs[] = [];
-
-  errors.forEach((error) => {
-    let transitionStr: string | undefined = undefined;
-    if (typeof error.transition === "object") {
-      transitionStr = error.transition.nextState;
-    } else {
-      transitionStr = error.transition;
+  let nextTask = undefined;
+  if (task.then) {
+    switch (task.then) {
+      case "exit":
+      case "end":
+        return undefined;
+      case "continue":
+        break;
+      default:
+        nextTask = task.then;
     }
-
-    edgeArgs.push(buildEdgeArgs(index, node, transitionStr, "edge_error", "errorTransition"));
-  });
-
-  return edgeArgs;
-}
-
-function getDefaultTransitionArgs(
-  index: number,
-  node: Unpacked<Specification.States>,
-  transition: string | Specification.ITransition
-): EdgeArgs {
-  let transitionStr: string | undefined = undefined;
-  if (typeof transition === "object") {
-    transitionStr = transition.nextState;
-  } else {
-    transitionStr = transition;
   }
 
-  return buildEdgeArgs(index, node, transitionStr, "edge_defaultCondition", "defaultConditionTransition");
+  if (!nextTask) {
+    // solve implincit edge connection
+    if (index + 1 < tasks.length) {
+      nextTask = Object.keys(tasks[index + 1])[0];
+    }
+  }
+
+  return nextTask ? buildEdgeArgs(index, taskItem, nextTask, "edge_transition", "transition") : undefined;
 }
 
-function getConditionTransitionsArgs(
-  index: number,
-  node: Unpacked<Specification.States>,
-  conditions: Specification.Datacondition[] | Specification.Eventcondition[]
-): EdgeArgs[] {
+function getConditionTransitionsArgs(index: number, tasks: Specification.TaskList): EdgeArgs[] {
   const conditionTransitions: EdgeArgs[] = [];
+  const taskItem = tasks[index];
+  const conditions = (taskItem[Object.keys(taskItem)[0]] as Specification.SwitchTask).switch!;
 
   conditions.forEach((condition) => {
-    if (condition instanceof Specification.Transitioneventcondition) {
-      const transitionEventCondition = condition as Specification.ITransitioneventcondition;
+    const switchItem = Object.keys(condition)[0];
+    const switchCase = condition[switchItem];
 
-      let transitionStr: string | undefined = undefined;
-      if (typeof transitionEventCondition.transition === "object") {
-        transitionStr = transitionEventCondition.transition.nextState;
-      } else {
-        transitionStr = transitionEventCondition.transition;
-      }
-
-      conditionTransitions.push(
-        buildEdgeArgs(index, node, transitionStr, "edge_eventCondition", "eventConditionTransition")
-      );
+    if (switchItem === "default") {
+      conditionTransitions.push(buildEdgeArgs(index, taskItem, switchCase.then, "edge_default", "default"));
     } else {
-      // Specification.Enddatacondition won't be created for now
-
-      const transitionDataCondition = condition as Specification.ITransitiondatacondition;
-
-      let transitionStr: string | undefined = undefined;
-      if (typeof transitionDataCondition.transition === "object") {
-        transitionStr = transitionDataCondition.transition.nextState;
-      } else {
-        transitionStr = transitionDataCondition.transition;
-      }
-
-      conditionTransitions.push(
-        buildEdgeArgs(index, node, transitionStr, "edge_dataCondition", "dataConditionTransition")
-      );
+      conditionTransitions.push(buildEdgeArgs(index, taskItem, switchCase.then, "edge_condition", "condition"));
     }
   });
 
@@ -443,21 +297,23 @@ function getConditionTransitionsArgs(
 
 function buildEdgeArgs(
   index: number,
-  node: Unpacked<Specification.States>,
+  taskItem: Specification.TaskItem,
   target: string,
   type: EdgeType,
   swfType: SwfEdgeTypes
 ): EdgeArgs {
+  const taskName = Object.keys(taskItem)[0];
+
   return {
-    id: node.name + "_" + target + "_" + swfType.toString(),
+    id: taskName + "_" + target + "_" + swfType.toString(),
     swfObject: {
-      type: node.type!,
-      id: node.name!,
+      type: getTaskTypeFromTaskItem(taskItem),
+      id: taskName,
       edgeType: swfType,
       index,
     },
     type: type,
-    source: node.name!,
+    source: taskName,
     target: target,
   };
 }

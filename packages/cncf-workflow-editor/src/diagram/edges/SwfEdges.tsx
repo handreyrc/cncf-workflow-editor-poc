@@ -29,14 +29,13 @@ import { useAlwaysVisibleEdgeUpdatersAtNodeBorders } from "./useAlwaysVisibleEdg
 import { useKieEdgePath } from "./useKieEdgePath";
 import { usePotentialWaypointControls } from "./usePotentialWaypointControls";
 import { useSettings } from "../../settings/SwfEditorSettingsContext";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
-import { Unpacked } from "../../tsExt/tsExt";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export type SwfDiagramEdgeData = {
   swfEdge: { index: number } | undefined;
   swfObject: SwfEdge["swfObject"];
-  swfSource: Unpacked<Specification.States> | undefined;
-  swfTarget: Unpacked<Specification.States> | undefined;
+  swfSource: Specification.TaskItem | undefined;
+  swfTarget: Specification.TaskItem | undefined;
 };
 
 export const TransitionPath = React.memo(
@@ -50,18 +49,7 @@ export const TransitionPath = React.memo(
   }
 );
 
-export const ErrorTransitionPath = React.memo(
-  (_props: React.SVGProps<SVGPathElement> & { svgRef?: React.RefObject<SVGPathElement> }) => {
-    const { svgRef, ...props } = _props;
-    return (
-      <>
-        <path ref={svgRef} style={{ strokeWidth: 1, stroke: "red" }} markerEnd={"url(#closed-arrow)"} {...props} />
-      </>
-    );
-  }
-);
-
-export const EventConditionTransitionPath = React.memo(
+export const ConditionPath = React.memo(
   (_props: React.SVGProps<SVGPathElement> & { svgRef?: React.RefObject<SVGPathElement> }) => {
     const { svgRef, ...props } = _props;
     return (
@@ -72,39 +60,12 @@ export const EventConditionTransitionPath = React.memo(
   }
 );
 
-export const DefaultConditionTransitionPath = React.memo(
+export const DefaultPath = React.memo(
   (_props: React.SVGProps<SVGPathElement> & { svgRef?: React.RefObject<SVGPathElement> }) => {
     const { svgRef, ...props } = _props;
     return (
       <>
         <path ref={svgRef} style={{ strokeWidth: 1, stroke: "green" }} markerEnd={"url(#closed-arrow)"} {...props} />
-      </>
-    );
-  }
-);
-
-export const DataConditionTransitionPath = React.memo(
-  (_props: React.SVGProps<SVGPathElement> & { svgRef?: React.RefObject<SVGPathElement> }) => {
-    const { svgRef, ...props } = _props;
-    return (
-      <>
-        <path ref={svgRef} style={{ strokeWidth: 1, stroke: "black" }} markerEnd={"url(#closed-arrow)"} {...props} />
-      </>
-    );
-  }
-);
-
-export const CompensationTransitionPath = React.memo(
-  (_props: React.SVGProps<SVGPathElement> & { svgRef?: React.RefObject<SVGPathElement> }) => {
-    const { svgRef, ...props } = _props;
-    return (
-      <>
-        <path
-          ref={svgRef}
-          style={{ strokeWidth: 1, stroke: "#dab600", strokeDasharray: "5,5" }}
-          markerEnd={"url(#closed-arrow)"}
-          {...props}
-        />
       </>
     );
   }
@@ -181,7 +142,7 @@ export const TransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData
   );
 }, propsHaveSameValuesDeep);
 
-export const ErrorTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
+export const ConditionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
   const renderCount = useRef<number>(0);
   renderCount.current++;
 
@@ -205,7 +166,7 @@ export const ErrorTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdg
 
   return (
     <>
-      <ErrorTransitionPath
+      <ConditionPath
         svgRef={interactionPathRef}
         d={path}
         {...interactionStrokeProps}
@@ -216,7 +177,7 @@ export const ErrorTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdg
         data-edgetype={"information-requirement"}
         visibility={settings.isReadOnly ? "hidden" : undefined}
       />
-      <ErrorTransitionPath d={path} className={`kie-swf-editor--edge ${className}`} />
+      <ConditionPath d={path} className={`kie-swf-editor--edge ${className}`} />
 
       {!settings.isReadOnly && props.selected && !isConnecting && props.data?.swfEdge && (
         <Waypoints
@@ -231,7 +192,7 @@ export const ErrorTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdg
   );
 }, propsHaveSameValuesDeep);
 
-export const EventConditionTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
+export const DefaultEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
   const renderCount = useRef<number>(0);
   renderCount.current++;
 
@@ -255,7 +216,7 @@ export const EventConditionTransitionEdge = React.memo((props: RF.EdgeProps<SwfD
 
   return (
     <>
-      <EventConditionTransitionPath
+      <DefaultPath
         svgRef={interactionPathRef}
         d={path}
         {...interactionStrokeProps}
@@ -266,157 +227,7 @@ export const EventConditionTransitionEdge = React.memo((props: RF.EdgeProps<SwfD
         data-edgetype={"information-requirement"}
         visibility={settings.isReadOnly ? "hidden" : undefined}
       />
-      <EventConditionTransitionPath d={path} className={`kie-swf-editor--edge ${className}`} />
-
-      {!settings.isReadOnly && props.selected && !isConnecting && props.data?.swfEdge && (
-        <Waypoints
-          edgeId={props.id}
-          edgeIndex={props.data.swfEdge.index}
-          waypoints={waypoints}
-          onDragStop={onMouseMove}
-        />
-      )}
-      {!settings.isReadOnly && isHovered && potentialWaypoint && <PotentialWaypoint point={potentialWaypoint.point} />}
-    </>
-  );
-}, propsHaveSameValuesDeep);
-
-export const DefaultConditionTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
-  const renderCount = useRef<number>(0);
-  renderCount.current++;
-
-  const { path, points: waypoints } = useKieEdgePath(props.source, props.target, props.data);
-
-  const interactionPathRef = React.useRef<SVGPathElement>(null);
-  const isHovered = useIsHovered(interactionPathRef);
-  const settings = useSettings();
-
-  const { onMouseMove, onDoubleClick, potentialWaypoint, isDraggingWaypoint } = usePotentialWaypointControls(
-    waypoints,
-    props.selected,
-    props.id,
-    interactionPathRef
-  );
-
-  const isConnecting = !!RF.useStore((s) => s.connectionNodeId);
-  const className = useEdgeClassName(isConnecting, isDraggingWaypoint);
-
-  useAlwaysVisibleEdgeUpdatersAtNodeBorders(interactionPathRef, props.source, props.target, waypoints);
-
-  return (
-    <>
-      <DefaultConditionTransitionPath
-        svgRef={interactionPathRef}
-        d={path}
-        {...interactionStrokeProps}
-        className={`${interactionStrokeProps.className} ${className}`}
-        strokeWidth={props.interactionWidth ?? DEFAULT_INTRACTION_WIDTH}
-        onMouseMove={onMouseMove}
-        onDoubleClick={onDoubleClick}
-        data-edgetype={"information-requirement"}
-        visibility={settings.isReadOnly ? "hidden" : undefined}
-      />
-      <DefaultConditionTransitionPath d={path} className={`kie-swf-editor--edge ${className}`} />
-
-      {!settings.isReadOnly && props.selected && !isConnecting && props.data?.swfEdge && (
-        <Waypoints
-          edgeId={props.id}
-          edgeIndex={props.data.swfEdge.index}
-          waypoints={waypoints}
-          onDragStop={onMouseMove}
-        />
-      )}
-      {!settings.isReadOnly && isHovered && potentialWaypoint && <PotentialWaypoint point={potentialWaypoint.point} />}
-    </>
-  );
-}, propsHaveSameValuesDeep);
-
-export const CompensationTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
-  const renderCount = useRef<number>(0);
-  renderCount.current++;
-
-  const { path, points: waypoints } = useKieEdgePath(props.source, props.target, props.data);
-
-  const interactionPathRef = React.useRef<SVGPathElement>(null);
-  const isHovered = useIsHovered(interactionPathRef);
-  const settings = useSettings();
-
-  const { onMouseMove, onDoubleClick, potentialWaypoint, isDraggingWaypoint } = usePotentialWaypointControls(
-    waypoints,
-    props.selected,
-    props.id,
-    interactionPathRef
-  );
-
-  const isConnecting = !!RF.useStore((s) => s.connectionNodeId);
-  const className = useEdgeClassName(isConnecting, isDraggingWaypoint);
-
-  useAlwaysVisibleEdgeUpdatersAtNodeBorders(interactionPathRef, props.source, props.target, waypoints);
-
-  return (
-    <>
-      <CompensationTransitionPath
-        svgRef={interactionPathRef}
-        d={path}
-        {...interactionStrokeProps}
-        className={`${interactionStrokeProps.className} ${className}`}
-        strokeWidth={props.interactionWidth ?? DEFAULT_INTRACTION_WIDTH}
-        onMouseMove={onMouseMove}
-        onDoubleClick={onDoubleClick}
-        data-edgetype={"authority-requirement"}
-        visibility={settings.isReadOnly ? "hidden" : undefined}
-      />
-      <CompensationTransitionPath d={path} className={`kie-swf-editor--edge ${className}`} />
-
-      {!settings.isReadOnly && props.selected && !isConnecting && props.data?.swfEdge && (
-        <Waypoints
-          edgeId={props.id}
-          edgeIndex={props.data.swfEdge.index}
-          waypoints={waypoints}
-          onDragStop={onMouseMove}
-        />
-      )}
-      {!settings.isReadOnly && isHovered && potentialWaypoint && <PotentialWaypoint point={potentialWaypoint.point} />}
-    </>
-  );
-}, propsHaveSameValuesDeep);
-
-export const DataConditionTransitionEdge = React.memo((props: RF.EdgeProps<SwfDiagramEdgeData>) => {
-  const renderCount = useRef<number>(0);
-  renderCount.current++;
-
-  const { path, points: waypoints } = useKieEdgePath(props.source, props.target, props.data);
-
-  const interactionPathRef = React.useRef<SVGPathElement>(null);
-  const isHovered = useIsHovered(interactionPathRef);
-  const settings = useSettings();
-
-  const { onMouseMove, onDoubleClick, potentialWaypoint, isDraggingWaypoint } = usePotentialWaypointControls(
-    waypoints,
-    props.selected,
-    props.id,
-    interactionPathRef
-  );
-
-  const isConnecting = !!RF.useStore((s) => s.connectionNodeId);
-  const className = useEdgeClassName(isConnecting, isDraggingWaypoint);
-
-  useAlwaysVisibleEdgeUpdatersAtNodeBorders(interactionPathRef, props.source, props.target, waypoints);
-
-  return (
-    <>
-      <DataConditionTransitionPath
-        svgRef={interactionPathRef}
-        d={path}
-        {...interactionStrokeProps}
-        className={`${interactionStrokeProps.className} ${className}`}
-        strokeWidth={props.interactionWidth ?? DEFAULT_INTRACTION_WIDTH}
-        onMouseMove={onMouseMove}
-        onDoubleClick={onDoubleClick}
-        data-edgetype={"information-requirement"}
-        visibility={settings.isReadOnly ? "hidden" : undefined}
-      />
-      <DataConditionTransitionPath d={path} className={`kie-swf-editor--edge ${className}`} />
+      <DefaultPath d={path} className={`kie-swf-editor--edge ${className}`} />
 
       {!settings.isReadOnly && props.selected && !isConnecting && props.data?.swfEdge && (
         <Waypoints

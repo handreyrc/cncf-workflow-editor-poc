@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 import { Unpacked } from "../../tsExt/tsExt";
+import { NodeSwfObjectsType } from "../nodes/SwfNodes";
 
 export type AdjMatrix = Record<
   string,
@@ -26,13 +27,7 @@ export type AdjMatrix = Record<
 
 export type HierarchyDirection = "up" | "down";
 
-export type SwfEdgeTypes =
-  | "transition"
-  | "errorTransition"
-  | "eventConditionTransition"
-  | "dataConditionTransition"
-  | "defaultConditionTransition"
-  | "compensationTransition";
+export type SwfEdgeTypes = "transition" | "condition" | "default";
 
 export type SwfEdge = {
   sourceId: string;
@@ -40,7 +35,7 @@ export type SwfEdge = {
   id: string;
   swfObject: {
     id: string;
-    type: Unpacked<Specification.States>["type"];
+    type: NodeSwfObjectsType;
     edgeType: SwfEdgeTypes;
     index: number;
   };

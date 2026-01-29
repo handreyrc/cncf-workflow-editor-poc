@@ -36,7 +36,7 @@ import { SwfDiagramNodeData } from "./nodes/SwfNodes";
 import { NodeType } from "./connections/graphStructure";
 import { DEFAULT_VIEWPORT } from "./Diagram";
 import { useCommands } from "../commands/CommandsContextProvider";
-import { Specification } from "@serverlessworkflow/sdk-typescript";
+import { Specification } from "@serverlessworkflow/sdk";
 
 export function DiagramCommands(props: {}) {
   const rfStoreApi = RF.useStoreApi();
@@ -129,7 +129,7 @@ export function DiagramCommands(props: {}) {
                 deleteNode({
                   __readonly_swfEdges: state.computed(state).getDiagramData().swfEdges,
                   definitions: state.swf.model,
-                  __readonly_swfObjectId: node.data.swfObject?.["id"],
+                  __readonly_swfObjectId: Object.keys(node.data.swfObject!)[0],
                   __readonly_nodeNature: nodeNatures[node.type as NodeType],
                 });
                 state.dispatch(state).diagram.setNodeStatus(node.id, {
@@ -169,11 +169,11 @@ export function DiagramCommands(props: {}) {
         }
 
         swfEditorStoreApi.setState((state) => {
-          state.swf.model.states ??= [] as unknown as Specification.States;
+          state.swf.model.do ??= [] as Specification.TaskList;
           // FIXME: when copying and pasting we will create possible id / name conflicts that must be handled before pasting
-          state.swf.model.states.push(...clipboard.swfElements);
+          state.swf.model.do.push(...clipboard.swfElements);
 
-          state.diagram._selectedNodes = [...clipboard.swfElements].map((s) => s.id!);
+          state.diagram._selectedNodes = [...clipboard.swfElements].map((t) => Object.keys(t)[0]);
 
           if (state.diagram._selectedNodes.length === 1) {
             state.focus.consumableId = state.diagram._selectedNodes[0];
