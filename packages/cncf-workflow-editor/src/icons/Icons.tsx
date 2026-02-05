@@ -34,7 +34,7 @@ import {
   WaitTaskSvg,
   UnknownNodeSvg,
 } from "../diagram/nodes/SwfNodeSvgs";
-import { switchExpression } from "@kie-tools-core/switch-expression-ts";
+import { switchExpression } from "@kie-tools-core/switch-expression-ts/src";
 import { NodeType } from "../diagram/connections/graphStructure";
 import { NODE_TYPES } from "../diagram/nodes/SwfNodeTypes";
 import { QuestionCircleIcon } from "@patternfly/react-icons/dist/js/icons/question-circle-icon";

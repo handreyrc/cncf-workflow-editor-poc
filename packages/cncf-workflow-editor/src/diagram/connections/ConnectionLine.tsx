@@ -41,7 +41,7 @@ import {
 import { pointsToPath } from "../maths/SwfMaths";
 import { getBoundsCenterPoint } from "../maths/Maths";
 import { NodeType, getDefaultEdgeTypeBetween } from "./graphStructure";
-import { switchExpression } from "@kie-tools-core/switch-expression-ts";
+import { switchExpression } from "@kie-tools-core/switch-expression-ts/src";
 import { DEFAULT_NODE_SIZES } from "../nodes/SwfDefaultSizes";
 import { useSwfEditorStore } from "../../store/StoreContext";
 import { useKieEdgePath } from "../edges/useKieEdgePath";

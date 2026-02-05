@@ -1896,24 +1896,21 @@ importers:
       '@kie-tools-core/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@kie-tools-core/operating-system':
-        specifier: workspace:*
-        version: link:../operating-system
       '@kie-tools-core/patternfly-base':
-        specifier: workspace:*
-        version: link:../patternfly-base
+        specifier: github:apache/incubator-kie-tools#5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2&path:packages/patternfly-base
+        version: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/patternfly-base
       '@kie-tools-core/react-hooks':
-        specifier: workspace:*
-        version: link:../react-hooks
+        specifier: github:apache/incubator-kie-tools#5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2&path:packages/react-hooks
+        version: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/react-hooks(react@17.0.2)
       '@kie-tools-core/switch-expression-ts':
-        specifier: workspace:*
-        version: link:../switch-expression-ts
+        specifier: github:apache/incubator-kie-tools#5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2&path:packages/switch-expression-ts
+        version: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/switch-expression-ts
       '@kie-tools/i18n-common-dictionary':
-        specifier: workspace:*
-        version: link:../i18n-common-dictionary
+        specifier: github:apache/incubator-kie-tools#5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2&path:packages/i18n-common-dictionary/src
+        version: src@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/i18n-common-dictionary/src
       '@kie-tools/xml-parser-ts':
-        specifier: workspace:*
-        version: link:../xml-parser-ts
+        specifier: github:apache/incubator-kie-tools#5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2&path:packages/xml-parser-ts
+        version: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/xml-parser-ts
       '@patternfly/react-core':
         specifier: ^5.4.1
         version: 5.4.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -18741,8 +18738,26 @@ packages:
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
 
+  '@kie-tools-core/patternfly-base@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/patternfly-base':
+    resolution: {path: packages/patternfly-base, tarball: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2}
+    version: 0.0.0
+
+  '@kie-tools-core/react-hooks@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/react-hooks':
+    resolution: {path: packages/react-hooks, tarball: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2}
+    version: 0.0.0
+    peerDependencies:
+      react: '>=17.0.2 <19.0.0'
+
+  '@kie-tools-core/switch-expression-ts@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/switch-expression-ts':
+    resolution: {path: packages/switch-expression-ts, tarball: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2}
+    version: 0.0.0
+
   '@kie-tools/emscripten-fs@0.0.2':
     resolution: {integrity: sha512-dxmfwq2F+yxawuGrVVRGmTeZHTqRHa79Vp4FX2KEXHAA9AgK1aaVz8mxZxXYFs2ycfp30NjWvhZCOIRbIKTjAQ==}
+
+  '@kie-tools/xml-parser-ts@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/xml-parser-ts':
+    resolution: {path: packages/xml-parser-ts, tarball: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2}
+    version: 0.0.0
 
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
@@ -30273,6 +30288,10 @@ packages:
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
 
+  src@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/i18n-common-dictionary/src:
+    resolution: {path: packages/i18n-common-dictionary/src, tarball: https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2}
+    version: 0.0.0
+
   sshpk@1.18.0:
     resolution: {integrity: sha512-2p2KJZTSqQ/I3+HX42EpYOa2l3f8Erv8MWKsy2I9uf4wA7yFIkXRffYdsx86y6z4vHtV8u7g+pPlr8/4ouAxsQ==}
     engines: {node: '>=0.10.0'}
@@ -40633,7 +40652,17 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
+  '@kie-tools-core/patternfly-base@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/patternfly-base': {}
+
+  '@kie-tools-core/react-hooks@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/react-hooks(react@17.0.2)':
+    dependencies:
+      react: 17.0.2
+
+  '@kie-tools-core/switch-expression-ts@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/switch-expression-ts': {}
+
   '@kie-tools/emscripten-fs@0.0.2': {}
+
+  '@kie-tools/xml-parser-ts@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/xml-parser-ts': {}
 
   '@koa/cors@5.0.0':
     dependencies:
@@ -58053,6 +58082,8 @@ snapshots:
   sprintf-js@1.0.3: {}
 
   sprintf-js@1.1.3: {}
+
+  src@https://codeload.github.com/apache/incubator-kie-tools/tar.gz/5f9f12dd27451e4b0b55e4e139762e01ba2bb2c2#path:packages/i18n-common-dictionary/src: {}
 
   sshpk@1.18.0:
     dependencies:

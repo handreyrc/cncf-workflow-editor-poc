@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { switchExpression } from "@kie-tools-core/switch-expression-ts";
+import { switchExpression } from "@kie-tools-core/switch-expression-ts/src";
 import { NodeType } from "../diagram/connections/graphStructure";
 import { NODE_TYPES } from "../diagram/nodes/SwfNodeTypes";
 import { NodeNature, nodeNatures } from "./NodeNature";

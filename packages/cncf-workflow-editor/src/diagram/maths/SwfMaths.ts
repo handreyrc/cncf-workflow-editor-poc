@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { switchExpression } from "@kie-tools-core/switch-expression-ts";
+import { switchExpression } from "@kie-tools-core/switch-expression-ts/src";
 import { SnapGrid } from "../../store/Store";
 import { snapBoundsDimensions, snapBoundsPosition } from "../SnapGrid";
 import { PositionalNodeHandleId } from "../connections/PositionalNodeHandles";

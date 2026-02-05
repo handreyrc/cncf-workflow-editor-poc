@@ -18,7 +18,7 @@
  */
 
 import * as RF from "reactflow";
-import { switchExpression } from "@kie-tools-core/switch-expression-ts";
+import { switchExpression } from "@kie-tools-core/switch-expression-ts/src";
 import { snapPoint } from "../SnapGrid";
 import { PositionalNodeHandleId } from "../connections/PositionalNodeHandles";
 import { getLineRectangleIntersectionPoint, getHandlePosition, pointsToPath } from "../maths/SwfMaths";
