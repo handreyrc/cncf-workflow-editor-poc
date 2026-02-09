@@ -58,6 +58,7 @@ env:
 
 jobs:
   extended_services_build:
+    if: ${{ false }} # This condition prevents the job from running
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

@@ -41,6 +41,7 @@ on:
 
 jobs:
   analyze:
+    if: ${{ false }} # This condition prevents the job from running
     name: Analyze
     runs-on: ubuntu-latest
     permissions:

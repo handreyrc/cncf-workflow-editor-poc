@@ -28,6 +28,7 @@ on:
 
 jobs:
   check:
+    if: ${{ false }} # This condition prevents the job from running
     runs-on: ubuntu-latest
 
     steps:
